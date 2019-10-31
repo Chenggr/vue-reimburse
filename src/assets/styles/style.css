@@ -1,0 +1,26 @@
+.md-field-item-content,
+.md-cell-item-body {
+  background-color: #ffffff;
+  color: #030303;
+}
+.marginT12 {
+  margin-top: 12px;
+}
+.marginT10 {
+  margin-top: 10px;
+}
+.marginB10 {
+  margin-bottom: 10px;
+}
+.marginT8 {
+  margin-top: 8px;
+}
+.marginB8 {
+  margin-bottom: 8px;
+}
+.marginT6 {
+  margin-top: 6px;
+}
+.md-cell-item-content {
+  color: #030303;
+}

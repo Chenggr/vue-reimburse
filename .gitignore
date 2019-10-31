@@ -1,0 +1,10 @@
+.deploy_git/
+dist/
+node_modules/
+public/
+src/assets/images/drawable-hdpi/
+src/assets/images/drawable-mdpi/
+src/assets/images/drawable-xhdpi/
+src/assets/images/drawable-xxhdpi/
+src/assets/images/drawable-xxxhdpi/
+dist/

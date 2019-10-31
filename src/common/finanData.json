@@ -1,0 +1,126 @@
+{
+  "0": [
+    {
+      "data": "全辖汇总",
+      "pageNo ": 1,
+      "tables": {
+        "columField": "B",
+        "columName": "机构名称",
+        "columPercent": 20,
+        "isSort": "N"
+      }
+    },
+    {
+      "data": "3648.21",
+      "pageNo ": 1,
+      "tables": {
+        "columField": "H",
+        "columName": "存款余额",
+        "columPercent": 17,
+        "isSort": "Y"
+      }
+    },
+    {
+      "data": "117.08",
+      "pageNo ": 1,
+      "tables ": {
+        "columField": "HY",
+        "columName": "比年初",
+        "columPercent": 14,
+        "isSort": "Y"
+      }
+    },
+    {
+      "data": "3353.09",
+      "pageNo ": 1,
+      "tables": {
+        "columField": "R",
+        "columName": "贷款余额",
+        "columPercent": 17,
+        "isSort": "Y"
+      }
+    },
+    {
+      "data": "417.83",
+      "pageNo": 1,
+      "tables": {
+        "columField": "RY",
+        "columName": "比年初 ",
+        "columPercent ": 16,
+        "isSort": "Y"
+      }
+    },
+    {
+      "data": "91.91%",
+      "pageNo": 1,
+      "tables": {
+        "columField": "HC",
+        "columName": "贷存比",
+        "columPercent": 16,
+        "isSort": "Y"
+      }
+    }
+  ],
+  "1": [
+    {
+      "data": "城区行合计",
+      "pageNo": 1,
+      "tables": {
+        "columField": "B",
+        "columName ": "机构名称",
+        "columPercent ": 20,
+        "isSort": "N"
+      }
+    },
+    {
+      "data": "1686.58",
+      "pageNo": 1,
+      "tables": {
+        "columField": "H",
+        "columName": "存款余额",
+        "columPercent": 17,
+        "isSort ": "Y"
+      }
+    },
+    {
+      "data": "55.46",
+      "pageNo": 1,
+      "tables": {
+        "columField": "HY",
+        "columName": "比年初",
+        "columPercent": 14,
+        "isSort": "Y"
+      }
+    },
+    {
+      "data": "1999.28",
+      "pageNo": 1,
+      "tables": {
+        "columField": "R",
+        "columName": "贷款余额",
+        "columPercent": 17,
+        "isSort": "Y"
+      }
+    },
+    {
+      "data": "228.81",
+      "pageNo": 1,
+      "tables ": {
+        "columField": "RY",
+        "columName": "比年初 ",
+        "columPercent": 16,
+        "isSort": "Y"
+      }
+    },
+    {
+      "data": "118.54%",
+      "pageNo": 1,
+      "tables": {
+        "columField": "HC",
+        "columName": "贷存比",
+        "columPercent": 16,
+        "isSort": "Y"
+      }
+    }
+  ]
+}
