@@ -322,6 +322,8 @@ export default {
       width: 33.3%;
       .van-button--normal {
         width: 80px;
+        border: 1px solid #999;
+        border-radius: 4px;
       }
     }
   }
