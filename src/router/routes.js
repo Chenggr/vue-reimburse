@@ -14,7 +14,7 @@ const detail2 = resolve => require(['../views/detail/detail2'], resolve)
 const detail3 = resolve => require(['../views/detail/detail3'], resolve)
 const uploader = resolve => require(['../views/test/uploader'], resolve)
 
-const demo = resolve => require(['../views/test/demo'], resolve)
+const demo = resolve => require(['../views/demo/demo'], resolve)
 
 export default [
   {

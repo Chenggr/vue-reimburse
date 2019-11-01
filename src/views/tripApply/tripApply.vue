@@ -75,7 +75,6 @@
 import { dateFormat } from 'common/filterDate'
 import { InputItem, Field, FieldItem } from 'mand-mobile'
 import { DatetimePicker, ActionSheet, Button } from 'vant'
-
 export default {
   name: 'TripApply',
   components: {
@@ -170,6 +169,19 @@ export default {
       }
     }
   }
+  .md-field-item {
+    height: 40px;
+  }
+  .md-field-item-content {
+    min-height: 40px;
+    padding: 0;
+  }
+
+  .md-input-item-input {
+    min-height: 40px;
+    height: 40px;
+  }
+  //  end
   .textarea-wrap {
     .title {
       font-size: 14px;
@@ -180,6 +192,7 @@ export default {
     }
     .md-field-item-control {
       textarea {
+        font-size: 14px;
         color: #666;
         font-weight: normal;
       }

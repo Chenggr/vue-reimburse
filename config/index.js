@@ -27,8 +27,8 @@ module.exports = {
     // Various Dev Server settings
     // host: '127.0.0.1',
     // host: 'localhost', // can be overwritten by process.env.HOST
-    host: '0.0.0.0',
-    // host: '192.168.43.175',
+    // host: '0.0.0.0',
+    host: '192.168.43.175',
     // host: '172.20.10.8',
     // host: '192.168.43.175', // macbook pro ip
     // host: '23.131.0.32',

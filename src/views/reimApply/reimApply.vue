@@ -21,6 +21,7 @@
       <van-uploader v-model="fileList"
                     image-fit="fill"
                     :after-read="afterRead" />
+
     </div>
     <md-field>
 
@@ -61,18 +62,24 @@
                      placeholder=""></md-input-item>
 
     </md-field>
-
+    <div class="btn-wrap">
+      <van-button type="default"
+                  @click="submit"
+                  size="large">提交</van-button>
+    </div>
   </div>
 </template>
 <script>
 import { InputItem, Field } from 'mand-mobile'
-import { Uploader } from 'vant'
+import { Uploader, Icon, Button } from 'vant'
 export default {
   name: 'ReimApply',
   components: {
     [InputItem.name]: InputItem,
     [Field.name]: Field,
-    VanUploader: Uploader
+    VanUploader: Uploader,
+    VanIcon: Icon,
+    VanButton: Button
   },
   data () {
     return {
@@ -92,6 +99,9 @@ export default {
     afterRead (file) {
       // 此时可以自行将文件上传至服务器
       console.log(file)
+    },
+    submit () {
+      console.log('submit')
     }
   }
 }
@@ -127,7 +137,33 @@ export default {
       }
     }
   }
+  .md-field-item {
+    height: 40px;
+  }
+  .md-field-item-content {
+    min-height: 40px;
+    padding: 0;
+  }
+
+  .md-input-item-input {
+    min-height: 40px;
+    height: 40px;
+  }
+  //  end
+  .my-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin-left: -10px;
+    margin-top: -10px;
+  }
+  // .van-icon-plus:before {
+  //   content: "\E622";
+  // }
   .uploader-wrap {
+    position: relative;
     overflow-x: auto;
     text-align: center;
     .van-uploader__wrapper {
@@ -156,6 +192,18 @@ export default {
           height: 130px;
         }
       }
+    }
+  }
+  .btn-wrap {
+    display: flex;
+    justify-content: center;
+    padding: 30px 0;
+    .van-button--large {
+      width: 240px;
+    }
+    .van-button--default {
+      border: 1px solid #999;
+      border-radius: 4px;
     }
   }
 }
