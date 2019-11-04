@@ -22,7 +22,6 @@ import '@/assets/font/iconfont.ttf'
 import './assets/styles/semantic.min.css'
 
 import 'lib-flexible'
-// import QRCode from 'qrcodejs2'
 import * as customFilters from './common/filters/filters'
 
 // eslint-disable-next-line
