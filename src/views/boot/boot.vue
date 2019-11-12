@@ -2,6 +2,24 @@
   <div class="view-boot">
     <div class="content">
       <div class="wrap"
+           @click="goNext('projectApply')">
+        <div class="icon"><img src="@/assets/img/Group-1.png"
+               alt=""></div>
+        <div class="title">立项申请</div>
+      </div>
+      <div class="wrap"
+           @click="goNext('applicant')">
+        <div class="icon"><img src="@/assets/img/Group-1.png"
+               alt=""></div>
+        <div class="title">申请人</div>
+      </div>
+      <div class="wrap"
+           @click="goNext('approver')">
+        <div class="icon"><img src="@/assets/img/Group-1.png"
+               alt=""></div>
+        <div class="title">审批人</div>
+      </div>
+      <div class="wrap"
            @click="goNext('tripApply')">
         <div class="icon"><img src="@/assets/img/Group-1.png"
                alt=""></div>
@@ -51,11 +69,12 @@ export default {
 
   .content {
     display: flex;
+    flex-wrap: wrap;
   }
   .wrap {
     text-align: center;
     width: 25%;
-    padding: 16px;
+    padding: 16px 0;
     .icon {
       img {
         height: 24px;

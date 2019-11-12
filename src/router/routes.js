@@ -14,7 +14,12 @@ const detail2 = resolve => require(['../views/detail/detail2'], resolve)
 const detail3 = resolve => require(['../views/detail/detail3'], resolve)
 const uploader = resolve => require(['../views/test/uploader'], resolve)
 
-const demo = resolve => require(['../views/demo/demo'], resolve)
+const demo = resolve => require(['../views/test/demo'], resolve)
+
+const projectApply = resolve =>
+  require(['../views/projectApply/projectApply'], resolve)
+const applicant = resolve => require(['../views/applicant/applicant'], resolve)
+const approver = resolve => require(['../views/approver/approver'], resolve)
 
 export default [
   {
@@ -23,6 +28,30 @@ export default [
     component: boot,
     meta: {
       title: '报销'
+    }
+  },
+  {
+    path: '/projectApply',
+    name: 'projectApply',
+    component: projectApply,
+    meta: {
+      title: '立项申请'
+    }
+  },
+  {
+    path: '/applicant',
+    name: 'applicant',
+    component: applicant,
+    meta: {
+      title: '申请人'
+    }
+  },
+  {
+    path: '/approver',
+    name: 'approver',
+    component: approver,
+    meta: {
+      title: '审批人'
     }
   },
   {

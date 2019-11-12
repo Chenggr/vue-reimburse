@@ -9,19 +9,21 @@ import store from './store'
 import vConfig from './index'
 import watermark from 'vue-watermark-directive'
 
+import VueAwesomeSwiper from 'vue-awesome-swiper'
+import 'swiper/dist/css/swiper.css'
 import mandMobile from 'mand-mobile'
 import 'mand-mobile/lib/mand-mobile.css'
 import 'vant/lib/index.css'
+import 'vant/lib/icon/local.css' // 本地css
 
 import 'jquery'
 import 'styles/reset.css'
 // import 'styles/border.css'
-import '@/assets/font/iconfont.css'
-import '@/assets/font/iconfont.ttf'
 
 import './assets/styles/semantic.min.css'
 
 import 'lib-flexible'
+// import QRCode from 'qrcodejs2'
 import * as customFilters from './common/filters/filters'
 
 // eslint-disable-next-line
@@ -34,10 +36,10 @@ import cal from './common/calculation.js'
 import plLazy from '@/components/pl-lazy/plLazy'
 import { DEBUG } from './config/config.js'
 
-import VueScroller from 'vue-scroller'
-Vue.use(VueScroller)
 // Vue.prototype.DEBUG = DEBUG
-
+// import vueFinger from 'vue-finger-directive'
+// Vue.use(vueFinger)
+Vue.use(VueAwesomeSwiper)
 Vue.use(mandMobile)
 
 Vue.prototype.DEBUG = DEBUG

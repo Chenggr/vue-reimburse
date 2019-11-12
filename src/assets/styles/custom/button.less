@@ -1,0 +1,36 @@
+.btn-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+  height: 60px;
+  .van-button--large {
+    width: 240px;
+    height: 40px;
+    line-height: 40px;
+  }
+  .van-button--default {
+    border: 1px solid #999;
+    border-radius: 4px;
+  }
+}
+.btn-bottom-wrap {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  z-index: 4;
+  background-color: #efefef;
+  .btn-wrap {
+    height: 60px; /*no*/
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+  }
+  .add-proj {
+    height: 18px; /*no*/
+    background: #fff;
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 8px;
+  }
+}

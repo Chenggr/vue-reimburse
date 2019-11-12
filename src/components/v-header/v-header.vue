@@ -4,7 +4,7 @@
     <x-header id="header"
               @on-click-back="clickBack"
               :left-options="showBack"
-              style="width:100%;position:absolute;left:0;top:0;z-index:9999;background-color:#fff;"
+              style="width:100%;height:44px;position:absolute;left:0;top:0;z-index:9999;background-color:#fff;"
               class="header vux-1px-b"
               :title="headerTitle">
     </x-header>
