@@ -1,8 +1,20 @@
 <template>
   <div class="view-applicant">
+    <x-header id="header"
+              @on-click-back="goback"
+              :left-options="{backText: '',preventGoBack:true}"
+              style="width:100%;position:fixed;left:0;top:0;z-index:2000;background-color:#fff;"
+              class="header vux-1px-b"
+              :title="headerTitle">
+      <span class="right-span"
+            slot="right"
+            @click="clickRefreshBtn">
+        <van-icon name="replay" /></span>
+    </x-header>
     <van-tabs v-model="activeName"
               sticky
               :offset-top="44"
+              @click="onChangeTab"
               class="my-tab-top">
       <van-tab title="我的待办"
                name="todo">
@@ -87,39 +99,149 @@
                         size="large">提交</van-button>
           </div>
         </div>
-        <van-action-sheet v-model="showDateSearch"
-                          title="">
-          <van-datetime-picker v-model="currentDate"
-                               @confirm="confirmDateSearch"
-                               @change="change"
-                               type="year-month" />
-        </van-action-sheet>
-        <!-- 筛选弹框 -->
-        <van-popup class="my-popup"
-                   :close-on-click-overlay="true"
-                   v-model="showScreeningPopup"
-                   round>
-          <div class="popup-wrap">
 
-            <div class="popup-content">
-              内容
-            </div>
-          </div>
-        </van-popup>
-        <!-- 筛选弹框 -->
       </van-tab>
+      <!-- 我的记录 -->
       <van-tab title="我的记录"
                name="record">
         <div class="my-record-wrap">
-          我的记录
+          <div class="action-buttons">
+            <div class="date-search"
+                 @click="onDateSearch">
+              {{DateSearch}}
+              <van-icon name="arrow" />
+            </div>
+            <div class="screening-btn"
+                 @click="onScreening">
+              <span>筛选</span>
+              <van-icon name="filter-o"
+                        style="margin-top:-2px;"
+                        size="16px" />
+            </div>
+            <div class="search-btn"
+                 @click="onSearching">
+              <span>搜索</span>
+              <van-icon name="search"
+                        size="16px" />
+            </div>
+          </div>
+          <div class="list-wrap">
+            <div class="reimburse-cell"
+                 ref="reimburse">
+              <md-scroll-view ref="scrollView2"
+                              v-show="!isEmpty"
+                              manual-init
+                              :scrolling-x="false"
+                              @end-reached="$_onEndReached2">
+                <van-swipe-cell ref="swipeCell"
+                                v-for="item of recordList"
+                                :key="item.index"
+                                :on-close="onClose">
+                  <template slot="left">
+                    <div class="big-wrap"
+                         @click="changeChecked(item)">
+                      <div class="right-wrap">
+                        <van-icon name="success"
+                                  v-show="item.isChecked" />
+                      </div>
+                    </div>
+                  </template>
+                  <div class="cell-content">
+                    <div class="cell-left">
+                      <div class="item">{{item.title1}}</div>
+                      <div class="item">{{item.title2}}</div>
+                    </div>
+                    <div class="cell-middle">
+                      <div class="item">{{item.date}}</div>
+                      <div class="item">{{item.money}}</div>
+                    </div>
+                    <div class="cell-right">
+                      <div class="item">{{item.status}}</div>
+                      <div class="">
+                        <div class="edit">{{item.edit}}</div>
+                      </div>
+                    </div>
+                  </div>
+                  <template slot="right">
+                    <!-- 删除 -->
+                  </template>
+                </van-swipe-cell>
+                <md-scroll-view-more slot="more"
+                                     :is-finished="isFinished2"
+                                     :finished-text="finishedText2">
+                </md-scroll-view-more>
+              </md-scroll-view>
+
+              <!-- <div @click="openAll">openAll</div> -->
+
+            </div>
+          </div>
         </div>
+        <div class="btn-bottom-wrap">
+          <div class="add-proj"
+               v-show="isShowProjNum">
+            <div>共计:{{projNum}}项</div>
+            <div>{{projTotalMoney}}元</div>
+          </div>
+          <div class="btn-wrap">
+            <van-button type="default"
+                        ref="submits"
+                        :class="{'van-button--disabled':!isabled}"
+                        @click="submit"
+                        size="large">提交</van-button>
+          </div>
+        </div>
+
       </van-tab>
+      <van-action-sheet v-model="showDateSearch"
+                        title="">
+        <van-datetime-picker v-model="currentDate"
+                             @confirm="confirmDateSearch"
+                             @change="change"
+                             type="year-month" />
+      </van-action-sheet>
+
+      <!-- 筛选弹框 -->
+      <van-popup class="my-popup"
+                 :close-on-click-overlay="true"
+                 v-model="showScreeningPopup"
+                 round>
+        <div class="popup-wrap">
+
+          <my-screen></my-screen>
+
+        </div>
+      </van-popup>
+      <!-- 筛选弹框 -->
+      <!-- 搜索底部弹框 -->
+      <van-popup class="my-search"
+                 position="right"
+                 :close-on-click-overlay="true"
+                 v-model="showSearchPopup">
+        <div class="popup-wrap">
+          <div class="popup-content">
+            <form action="/">
+              <van-search class="search-input"
+                          v-model="searchValue"
+                          placeholder="请输入搜索关键词"
+                          show-action
+                          @search="onSearch"
+                          @cancel="onCancel" />
+
+            </form>
+          </div>
+        </div>
+      </van-popup>
+      <!-- 搜索弹框 -->
     </van-tabs>
 
   </div>
 
 </template>
 <script>
+import myScreen from '../../common/components/my-screen'
+import { XHeader } from 'vux'
+import { mapGetters, mapMutations } from 'vuex'
 import axios from 'axios'
 // import calc from '../../common/calculation'
 import { ScrollView, ScrollViewMore } from 'mand-mobile'
@@ -134,11 +256,14 @@ import {
   Cell,
   Button,
   Toast,
-  Popup
+  Popup,
+  Search
 } from 'vant'
 export default {
   name: 'Applicant',
   components: {
+    myScreen,
+    XHeader,
     VanDatetimePicker: DatetimePicker,
     VanActionSheet: ActionSheet,
     [ScrollView.name]: ScrollView,
@@ -149,29 +274,38 @@ export default {
     VanSwipeCell: SwipeCell,
     VanCell: Cell,
     VanButton: Button,
-    VanPopup: Popup
+    VanPopup: Popup,
+    VanSearch: Search
   },
 
   data () {
     return {
+      Tab: 'todo',
+      finishedText: '',
+      finishedText2: '',
       isEmpty: false,
       isFinished: false,
+      isFinished2: false,
       projTotalMoney: 0,
       projNum: 0,
       activeName: 'todo',
       isShowProjNum: false,
-      todoList: [],
+      todoList: [],      // 我的待办
+      recordList: [],    // 我的记录
       checkedList: [],
       isabled: true,      // 提交是否可用
       pageSize: 10,
       pageNo: 1,
+      pageNo2: 1,
       totCount: 0,
+      totCount2: 0,
       isFirst: true,
-      showDateSearch: false,
+      showDateSearch: false,      // 日期弹框
       currentDate: new Date(),
       DateSearch: dateFormat('YYYY年mm月', new Date()),
-      showScreeningPopup: false               // 显示筛选弹框
-
+      showScreeningPopup: false,               // 显示筛选弹框
+      showSearchPopup: false,      // 显示搜索弹框
+      searchValue: ''
     }
   },
   created () {
@@ -187,15 +321,88 @@ export default {
     console.log(this.$refs['scrollView'])
     this.init()
   },
-  computed: {
-    canNext () {
-      return this.pageNo * this.pageSize < this.totCount
-    },
-    finishedText () {
-      return this.todoList.length > 20 ? '全部已加载' : ''
+  watch: {
+    refreshBtn (newData, oldValue) {
+      console.log(newData, oldValue)
+      if (this.refreshBtn) {
+        console.log('点击刷新')
+        if (this.Tab === 'todo') {
+          console.log('刷新我的待办')
+          this.refreshTodo()
+        } else if (this.Tab === 'record') {
+          console.log('刷新我的记录')
+          this.refreshRecord()
+        }
+        this.setRefreshBtn(false)
+      }
     }
   },
+  computed: {
+    ...mapGetters([
+      'refreshBtn'
+    ]),
+    headerTitle () {
+      const currentRoute = this.$route.meta
+      const defaultTitle = '申请人'
+      return currentRoute ? currentRoute.title : defaultTitle
+    },
+    canNext2 () {
+      console.log(this.pageNo2, this.pageSize, this.totCount2)
+      return this.pageNo2 * this.pageSize <= this.totCount2
+    }
+
+  },
   methods: {
+    goback () {
+      this.$router.push('/')
+    },
+    canNext () {
+      console.log(this.pageNo, this.pageSize, this.totCount)
+      return this.pageNo * this.pageSize <= this.totCount
+    },
+    ...mapMutations({
+      'setRefreshBtn': 'SET_REFRESH_BTN'
+    }),
+    clickRefreshBtn () {
+      if (this.Tab === 'todo') {
+        console.log('刷新我的待办')
+        this.refreshTodo()
+      } else if (this.Tab === 'record') {
+        console.log('刷新我的记录')
+        this.refreshRecord()
+      }
+      this.setRefreshBtn(false)
+    },
+    refreshTodo () {
+      // 初始化
+      this.todoList = []
+      this.pageNo = 1
+      this.finishedText = ''
+      this.isFinished = false
+      this.$refs.scrollView.reflowScroller()
+      this.$refs.scrollView.finishLoadMore()
+      this.$refs.scrollView.scrollTo(0, 0)
+      this.init()
+    },
+    refreshRecord () {
+      // 初始化
+      this.recordList = []
+      this.pageNo2 = 1
+      this.finishedText2 = ''
+      this.isFinished2 = false
+      this.$refs.scrollView2.reflowScroller()
+      this.$refs.scrollView2.finishLoadMore()
+      this.$refs.scrollView2.scrollTo(0, 0)
+      this._getRecord()
+    },
+    onChangeTab (name, title) {
+      this.Tab = name
+      if (name === 'record' && this.recordList.length === 0) {
+        this._getRecord()
+      } else if (name === 'todo' && this.todoList.length === 0) {
+        this.init()
+      }
+    },
     onDateSearch () {
       this.showDateSearch = true
     },
@@ -230,14 +437,54 @@ export default {
         this.$refs.scrollView.$el.style.height = scrollViewHeight + 'px'
       })
     },
+    _getRecord () {
+      axios.get('/static/data/recordList.json').then(res => {
+        console.log(res)
+        this.totCount2 = res.data.totCount
+        this.recordList = res.data.recordList
+        this.isFirst = false
+        this.$refs['scrollView2'].init()
+        this.$refs.scrollView2.reflowScroller()
+        this.pageNo2 += 1
+        let bodyHeight = window.document.body.clientHeight
+        // ???
+        let scrollViewHeight = bodyHeight - 44 - 41 - 40 - 55
+        this.$refs.scrollView2.$el.style.height = scrollViewHeight + 'px'
+      })
+    },
     $_onEndReached () {
-      if (!this.canNext || this.isFirst) return
+      console.log('_onEndReached')
+      if (!this.canNext()) {
+        this.isFinished = true
+        this.finishedText = '全部已加载'
+        return
+      }
       axios.get('/static/data/todoList.json').then(res => {
+        console.log('axios $_onEndReached')
+        if (this.todoList.length === 20) {
+          console.log('tingzhi')
+          this.$refs.scrollView.finishRefresh()
+        }
         console.log(res)
         this.totCount = res.data.totCount
         this.todoList = [...this.todoList, ...res.data.todoList]
         this.$refs.scrollView.finishLoadMore()
         this.pageNo += 1
+      })
+    },
+    $_onEndReached2 () {
+      console.log('_onEndReached2')
+      if (!this.canNext2) {
+        this.isFinished2 = true
+        this.finishedText2 = '全部已加载'
+        return
+      }
+      axios.get('/static/data/recordList.json').then(res => {
+        console.log(res)
+        this.totCount2 = res.data.totCount
+        this.recordList = [...this.recordList, ...res.data.recordList]
+        this.$refs.scrollView2.finishLoadMore()
+        this.pageNo2 += 1
       })
     },
     everyChecked () {
@@ -256,8 +503,17 @@ export default {
       }
     },
     onScreening () {
-      console.log('筛选')
       this.showScreeningPopup = true
+    },
+    onSearching () {
+      // this.$router.push({ name: 'search' })
+      this.showSearchPopup = true
+    },
+    onSearch () {
+
+    },
+    onCancel () {
+      this.showSearchPopup = false
     },
     submit () {
       console.log(this.todoList)
@@ -333,18 +589,49 @@ export default {
 }
 </script>
 <style lang="less">
+#header {
+  // z-index: 499 !important;
+  .vux-header-title {
+    color: #222;
+  }
+  .right-span {
+    color: #222;
+    padding: 8px;
+    font-size: 16px;
+  }
+}
 .view-applicant {
+  @import "../../assets/styles/custom/tabs.less";
   position: fixed;
   width: 100%;
   height: 100%;
   background-color: #fff;
   @import "../../assets/styles/custom/button.less";
+  .my-search.van-popup {
+    width: 100%;
+    height: 100%;
+    .search-input {
+      .van-field__left-icon {
+        height: 100%;
+        display: flex;
+        align-items: center;
+      }
+      .van-search__content {
+        border-radius: 16px;
+        height: 40px;
+        .van-field__body {
+          height: 100%;
+        }
+      }
+    }
+  }
   .my-popup.van-popup {
     width: 76%;
     height: 70%;
     padding: 8px 16px;
 
     .popup-wrap {
+      height: 100%;
       .popup-title {
         display: flex;
         align-items: center;
@@ -406,6 +693,7 @@ export default {
       }
     }
   }
+
   .my-todo-wrap {
     // margin-top: 4px;
     padding-top: 40px; /*no*/
@@ -434,6 +722,7 @@ export default {
         justify-content: center;
         align-items: center;
       }
+
       span {
         display: inline-block;
       }
@@ -443,7 +732,51 @@ export default {
       background: #fff;
     }
   }
+  .my-record-wrap {
+    // margin-top: 4px;
+    padding-top: 40px; /*no*/
+    padding-bottom: 130px; /*no*/
+    .action-buttons {
+      position: fixed;
+      width: 100%;
+      z-index: 3;
+      top: 83px; /*no*/
+      background-color: #fff;
+      height: 40px; /*no*/
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      .search-btn {
+        margin-right: 8px;
+        height: 40px; /*no*/
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .date-search {
+        margin-left: 8px;
+        height: 40px; /*no*/
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .screening-btn {
+        margin-right: 8px;
+        height: 40px; /*no*/
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
 
+      span {
+        display: inline-block;
+      }
+    }
+    .list-wrap {
+      // margin-top: 4px;
+      background: #fff;
+    }
+  }
   .reimburse-cell {
     .cell-content {
       display: flex;
@@ -470,10 +803,12 @@ export default {
     }
     .cell-right {
       .edit {
+        width: 60px;
         display: flex;
+        justify-content: center;
         align-items: center;
         margin: 0 8px;
-        padding: 4px 16px;
+        padding: 4px 8px;
         background-color: #333;
         color: #fff;
         border-radius: 20px;

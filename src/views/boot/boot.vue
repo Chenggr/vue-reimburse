@@ -19,7 +19,7 @@
                alt=""></div>
         <div class="title">审批人</div>
       </div>
-      <div class="wrap"
+      <!-- <div class="wrap"
            @click="goNext('tripApply')">
         <div class="icon"><img src="@/assets/img/Group-1.png"
                alt=""></div>
@@ -42,7 +42,7 @@
         <div class="icon"><img src="@/assets/img/Group-2.png"
                alt=""></div>
         <div class="title">报销审批</div>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>

@@ -33,7 +33,8 @@
                       v-model="activeNames">
           <van-collapse-item title="备注信息"
                              name="2">
-            <van-field v-model="remarkInfoContent"
+            <van-field class="remark-info"
+                       v-model="remarkInfoContent"
                        rows="1"
                        autosize
                        label=""
@@ -120,7 +121,7 @@
       <div class="upload-img-wrap"
            @click="noticeAttache">
       </div>
-      <!-- <van-uploader v-model="fileList"        
+      <!-- <van-uploader v-model="fileList"
                     image-fit="fill"
                     :after-read="afterRead" /> -->
     </div>
@@ -214,25 +215,45 @@
       </div>
     </van-popup>
     <!-- 同行人弹框end -->
-    <!--上传弹框-->
+    <!--差旅上传弹框-->
     <van-popup class="my-popup-swiper"
-               v-model="showUploaderAttach">
+               v-model="showUploaderAttachTrip">
       <div class="my-swiper">
         <swiper :options="swiperOption">
-          <swiper-slide v-for="(item,index) in swiperList"
+          <swiper-slide v-for="(item,index) in swiperTripList"
                         :key="index">
             <div>
               <div class="popup-wrap">
                 <div class="popup-title">
                   <div class="left"
-                       @click="backUploaderAttach">
+                       @click="backUploaderAttachTrip">
                     <van-icon name="arrow-left" />
                   </div>
                   <div class="right"
-                       @click="uploaderSave">保存</div>
+                       @click="uploaderSaveTrip">保存</div>
                 </div>
-                <div class="popup-content">
-                  <div>{{item.title}}</div>
+                <div class="popup-content popup-trip">
+                  <div>添加附件</div>
+                  <div class="uploader-wrap">
+
+                    <van-uploader :max-count="1"
+                                  v-model="item.attachfileList"
+                                  image-fit="fill"
+                                  :after-read="afterRead" />
+                  </div>
+                  <div style="margin-top:10px;">
+                    <van-field class="attach-textarea"
+                               v-model="item.attachInfo"
+                               rows="3"
+                               label=""
+                               type="textarea"
+                               placeholder="" />
+                  </div>
+                  <div style="margin-top:10px;">
+                    <md-input-item title="附件标题"
+                                   v-model="item.attachTitle"
+                                   align="right"></md-input-item>
+                  </div>
                 </div>
               </div>
             </div>
@@ -241,20 +262,71 @@
                slot="pagination"></div>
         </swiper>
       </div>
-
     </van-popup>
-    <!--上传弹框end-->
+    <!--差旅上传弹框end-->
+    <!--招待上传弹框-->
+    <van-popup class="my-popup-swiper"
+               v-model="showUploaderAttachServe">
+      <div class="my-swiper">
+        <swiper :options="swiperOption">
+          <swiper-slide v-for="(item,index) in swiperServeList"
+                        :key="index">
+            <div>
+              <div class="popup-wrap">
+                <div class="popup-title">
+                  <div class="left"
+                       @click="backUploaderAttachServe">
+                    <van-icon name="arrow-left" />
+                  </div>
+                  <div class="right"
+                       @click="uploaderSaveServe">保存</div>
+                </div>
+                <div class="popup-content popup-serve">
+                  <div>添加附件</div>
+                  <div class="uploader-wrap">
+
+                    <van-uploader :max-count="2"
+                                  v-model="item.attachfileList"
+                                  image-fit="fill"
+                                  :after-read="afterRead" />
+                  </div>
+                  <div style="margin-top:10px;">
+                    <md-input-item title="供应商名称"
+                                   v-model="item.providerName"
+                                   align="right"></md-input-item>
+                    <md-input-item title="支出总金额"
+                                   v-model="item.expendTotalMoney"
+                                   align="right"></md-input-item>
+
+                    <md-field-item solid
+                                   title="支出费用是否缴纳个税">
+                      <span class="field-right"
+                            slot="right">
+                        <span class="text"> {{item.isPayTaxText}}</span>
+                        <van-switch v-model="item.isPayTax"
+                                    size="16px"
+                                    @change="onChangePayTax(item.isPayTaxText,index)" /></span>
+                    </md-field-item>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </swiper-slide>
+          <div class="swiper-pagination"
+               slot="pagination"></div>
+        </swiper>
+      </div>
+    </van-popup>
+    <!--招待上传弹框end-->
   </div>
 </template> 
 
 <script>
 import Calendar from 'vue-calendar-component'
-
 import { chargeTypeEnum } from '../../config/enum'
 import AreaList from '../../common/area'
 import { dateFormat, get3MonthBefor } from 'common/filterDate'
 import {
-
   DatetimePicker,
   ActionSheet,
   Button,
@@ -270,7 +342,8 @@ import {
   Tabs,
   Uploader,
   CellGroup,
-  SwitchCell
+  SwitchCell,
+  Switch
 } from 'vant'
 export default {
   name: 'ProjectApply',
@@ -290,7 +363,8 @@ export default {
     VanTabs: Tabs,
     VanUploader: Uploader,
     VanCellGroup: CellGroup,
-    VanSwitchCell: SwitchCell
+    VanSwitchCell: SwitchCell,
+    VanSwitch: Switch
   },
   created () {
     console.log(chargeTypeEnum)
@@ -303,7 +377,6 @@ export default {
       }
       return '去程:' + this.goTrans + ' ' + '回程:' + this.backTrans
     }
-
   },
   data () {
     return {
@@ -315,7 +388,39 @@ export default {
       arr: [],
       // arr: [{ date: '2019/11/1', className: 'mark1' }, { date: '2019/11/13', className: 'mark2' }],
       showCalendar: false,  // 显示日历
-      swiperList: [{ title: '111' }, { title: '222' }, { title: '333' }],
+      swiperTripList: [
+        { attachTitle: '2019培训会1',
+          attachInfo: '1诚邀张三于2019年11月20日至武汉市江岸区澳门路金冠大厦xxx参加xxxxx培训xxxxxxxx'
+        },
+        { attachTitle: '2019培训会2',
+          attachInfo: '2诚邀张三于2019年11月20日至武汉市江岸区澳门路金冠大厦xxx参加xxxxx培训xxxxxxxx'
+        }, {
+          attachTitle: '2019培训会3',
+          attachInfo: '3诚邀张三于2019年11月20日至武汉市江岸区澳门路金冠大厦xxx参加xxxxx培训xxxxxxxx'
+        }
+      ],
+      swiperServeList: [{
+        attachfileList: [],
+        providerName: '武汉铁路交通1',
+        expendTotalMoney: '7340',
+        billDate: '2019年10月28日',
+        isPayTaxText: '否',
+        isPayTax: false
+      }, {
+        attachfileList: [],
+        providerName: '武汉铁路交通2',
+        expendTotalMoney: '7340',
+        billDate: '2019年10月28日',
+        isPayTaxText: '否',
+        isPayTax: false
+      }, {
+        attachfileList: [],
+        providerName: '武汉铁路交通3',
+        expendTotalMoney: '7340',
+        billDate: '2019年10月28日',
+        isPayTaxText: '否',
+        isPayTax: false
+      }],
       swiperOption: {
         effect: 'coverflow',
         centeredSlides: true,
@@ -335,7 +440,8 @@ export default {
           el: '.swiper-pagination'
         }
       },
-      showUploaderAttach: false,               // 上传附件popup
+      showUploaderAttachTrip: false,               // 差旅上传附件popup
+      showUploaderAttachServe: false,               // 招待上传附件popup
       chargeTypeEnum: 0,
       startDate: '',                        // 立项日期
       showStartDate: false,
@@ -360,7 +466,7 @@ export default {
       partnerList: [],                      // 同行人列表
       dataModel: [],
       showTransportation: false,            // 显示交通工具弹框
-      transportationList: ['请选择', '火车', '飞机'],   // 交通工具列表
+      transportationList: ['请选择', '火车', '飞机', '汽车'],   // 交通工具列表
       goTrans: '',                          // 去程交通工具
       backTrans: '',                        // 回程交通工具
       attachment: '上传附件',                 // 附件
@@ -374,17 +480,24 @@ export default {
       providerName: '',                      // 供应商名称
       isHaveAttachment: false,               // 是否有附件
       attachfileList: []                     // 纸质附件
+
     }
   },
 
   methods: {
+    onChangePayTax (value, index) {
+      console.log(value, index)
+      if (value === '否') {
+        this.swiperTripList[index].isPayTaxText = '是'
+        this.swiperTripList[index].isPayTax = true
+      } else {
+        this.swiperTripList[index].isPayTaxText = '否'
+        this.swiperTripList[index].isPayTax = false
+      }
+    },
     onBusinessTripDate () {
       this.showCalendar = true
       console.log(this.choose)
-      if (this.choose === 2) {
-        // this.choose = 0
-        // this.arr = []
-      }
     },
     clickDay (data) {
       console.log(data) // 选中某天
@@ -410,28 +523,71 @@ export default {
         let filterData = data.split('/')
         this.chooseOneFilter = filterData[0] + '年' + filterData[1] + '月' + filterData[2] + '日'
       }
+      console.log(this.arr)
+      if (this.arr.length === 2) {
+        let date1 = this.arr[0].date
+        let date2 = this.arr[1].date
+        let filterDate1 = date1.split('/')
+        let filterDate2 = date2.split('/')
+        let tempDate = ''
+        if (parseInt(filterDate1[0]) > parseInt(filterDate2[0])) {
+          // 比较年
+          console.log('比较年')
+          tempDate = date1
+          date1 = date2
+          date2 = tempDate
+        } else if (parseInt(filterDate1[1]) > parseInt(filterDate2[1])) {
+          // 比较月
+          console.log('比较月')
+          tempDate = date1
+          date1 = date2
+          date2 = tempDate
+        } else if (parseInt(filterDate1[2]) > parseInt(filterDate2[2])) {
+          // 比较日
+          console.log('比较日')
+          tempDate = date1
+          date1 = date2
+          date2 = tempDate
+        }
+
+        this.chooseOne = date1
+        this.chooseTwo = date2
+
+        this.chooseOneFilter = this.filterDate(this.chooseOne)
+        this.chooseTwoFilter = this.filterDate(this.chooseTwo)
+      }
+
+      console.log(this.chooseOne)
+      console.log(this.chooseTwo)
       this.businessTripDate = this.chooseOneFilter + '至' + this.chooseTwoFilter
+    },
+    filterDate (date) {
+      let filterData = date.split('/')
+      let chooseOneFilter = filterData[0] + '年' + filterData[1] + '月' + filterData[2] + '日'
+      return chooseOneFilter
     },
     changeDate (data) {
       console.log(data) // 左右点击切换月份
     },
-    backUploaderAttach () {
-      this.showUploaderAttach = false
+    backUploaderAttachTrip () {
+      this.showUploaderAttachTrip = false
     },
-    uploaderSave () {
-      this.showUploaderAttach = false
+    backUploaderAttachServe () {
+      this.showUploaderAttachServe = false
+    },
+    uploaderSaveTrip () {
+      this.showUploaderAttachTrip = false
+    },
+    uploaderSaveServe () {
+      this.showUploaderAttachTrip = false
     },
     noticeAttache () {
-      // 纸质附件上传
-      // 打开swiper
-      console.log('up')
-      this.showUploaderAttach = true
+      console.log('upTrip')
+      this.showUploaderAttachTrip = true
     },
     attachUploader () {
-      // 纸质附件上传
-      // 打开swiper
-      console.log('up')
-      this.showUploaderAttach = true
+      console.log('upServe')
+      this.showUploaderAttachServe = true
     },
     afterRead (file) {
       // 此时可以自行将文件上传至服务器
@@ -572,6 +728,28 @@ export default {
   @import "../../assets/styles/custom/collapse.less";
   @import "../../assets/styles/custom/textarea.less";
   @import "../../assets/styles/custom/calendar.less";
+  .my-swiper {
+    .popup-content.popup-trip,
+    .popup-content.popup-serve {
+      .md-field-item-content {
+        .md-field-item-right {
+          .field-right {
+            display: flex;
+            align-items: center;
+            .text {
+              display: inline-block;
+              margin-right: 8px;
+              color: #111a34;
+            }
+          }
+        }
+
+        .md-field-item-title {
+          width: inherit !important;
+        }
+      }
+    }
+  }
 
   .my-swiper {
     position: relative;
@@ -599,6 +777,7 @@ export default {
       height: 510px;
     }
     .swiper-slide {
+      overflow-y: scroll;
       padding: 8px 16px;
       border-radius: 20px;
       background-position: center;
@@ -791,6 +970,7 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
+
     .upload-img-wrap {
       border: 1px solid #b2b2b2;
       border-radius: 4px;
@@ -799,33 +979,37 @@ export default {
       height: 110px;
     }
     .van-uploader__wrapper {
-      -webkit-flex-wrap: nowrap;
-      flex-wrap: nowrap;
+      // -webkit-flex-wrap: nowrap;
+      // flex-wrap: nowrap;
+      display: flex;
+      justify-content: center;
     }
+
     .van-uploader {
       display: inline-flex;
       height: 100%;
-      overflow-x: auto;
+      // overflow-x: scroll;
+
       .van-uploader__upload {
         border: 1px solid #b2b2b2;
         border-radius: 4px;
         margin: 8px 16px;
-        width: 280px;
+        width: 200px;
         height: 110px;
       }
       .van-image__img {
-        width: 280px;
+        width: 200px;
         height: 110px;
       }
       .van-uploader__preview {
         border: 1px solid #b2b2b2;
         border-radius: 4px;
         margin: 8px 16px;
-        width: 280px;
+        width: 200px;
         height: 110px;
 
         .van-uploader__preview-image {
-          width: 280px;
+          width: 200px;
           height: 110px;
         }
       }

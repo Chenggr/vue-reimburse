@@ -7,6 +7,9 @@
               style="width:100%;height:44px;position:absolute;left:0;top:0;z-index:9999;background-color:#fff;"
               class="header vux-1px-b"
               :title="headerTitle">
+      <span v-if="showRefresh"
+            slot="right"
+            @click="clickRefreshBtn">刷新</span>
     </x-header>
   </div>
 
@@ -17,6 +20,9 @@ import { mapMutations } from 'vuex'
 export default {
   components: { XHeader },
   computed: {
+    showRefresh () {
+      return (this.$route.path === '/applicant')
+    },
     headerTitle () {
       if (this.headerTitleChange) {
         return this.headerTitleChange
@@ -29,7 +35,8 @@ export default {
 
     hideHeader () {
       return (
-        this.$route.path !== '/schoolPayment'
+        this.$route.path !== '/applicant' &&
+        this.$route.path !== '/approver'
 
       )
     },
@@ -69,9 +76,7 @@ export default {
       this.$router.push('/dealRecord')
     },
     clickRefreshBtn () {
-      if (this.$route.name === 'cardPackage') {
-        this.setRefreshBtn(true)
-      }
+      this.setRefreshBtn(true)
     }
 
   }

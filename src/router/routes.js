@@ -20,6 +20,7 @@ const projectApply = resolve =>
   require(['../views/projectApply/projectApply'], resolve)
 const applicant = resolve => require(['../views/applicant/applicant'], resolve)
 const approver = resolve => require(['../views/approver/approver'], resolve)
+const search = resolve => require(['../views/search/search'], resolve)
 
 export default [
   {
@@ -52,6 +53,14 @@ export default [
     component: approver,
     meta: {
       title: '审批人'
+    }
+  },
+  {
+    path: '/search',
+    name: 'search',
+    component: search,
+    meta: {
+      title: '搜索'
     }
   },
   {
