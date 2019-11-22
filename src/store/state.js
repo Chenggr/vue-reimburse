@@ -1,5 +1,6 @@
 const state = {
-  refreshBtn: false
+  refreshBtn: false,
+  direction: 'forward'
 }
 
 export default state

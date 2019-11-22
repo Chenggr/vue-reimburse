@@ -60,7 +60,7 @@ export default {
       this.$router.push('/rechargeRecord')
     },
     clickBack () {
-      this.setHeaderTitle('')
+      // this.setHeaderTitle('')
       this.$router ? this.$router.back() : window.history.back()
     },
     clickSchoolCancel () {
@@ -83,7 +83,7 @@ export default {
 }
 </script>
 <style lang="less">
-@import "~styles/varibles.less";
+@import '~styles/varibles.less';
 .view-header {
   .left-color {
     display: flex;

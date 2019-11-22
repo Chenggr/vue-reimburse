@@ -1,6 +1,11 @@
 <template>
   <div class="view-project-apply">
-
+    <md-tab-picker title="请选择"
+                   describe=""
+                   large-radius
+                   :data="data"
+                   v-model="show"
+                   @change="handleChange" />
     <md-field>
       <md-field-item solid
                      title="立项日期"
@@ -12,9 +17,21 @@
                      arrow
                      :addon="chargeTypeText"
                      @click="onChargeType" />
-
+      <md-field-item title="费用类型"
+                     arrow="arrow-right"
+                     @click="show = !show"
+                     placeholder=""
+                     :content="addressStr"
+                     solid />
+      <md-field-item solid
+                     title="指派审批人"
+                     arrow
+                     :addon="toApprover"
+                     @click="onShowApprover" />
       <div v-if="this.chargeType == chargeTypeEnum.TRIP">
-        <md-input-item title="领队人"
+
+        <md-input-item class="lead-input"
+                       title="领队人"
                        v-model="leader"
                        align="right"
                        placeholder="请输入"></md-input-item>
@@ -111,6 +128,10 @@
          class="uploader-wrap">
       <div class="upload-img-wrap"
            @click="attachUploader">
+        <div class="mark-bg">
+          <img src="../../assets/img/xiangji.png"
+               alt="">
+        </div>
       </div>
       <!-- <van-uploader v-model="attachfileList"               
                     image-fit="fill"
@@ -120,11 +141,16 @@
          class="uploader-wrap">
       <div class="upload-img-wrap"
            @click="noticeAttache">
+        <div class="mark-bg">
+          <img src="../../assets/img/xiangji.png"
+               alt="">
+        </div>
       </div>
       <!-- <van-uploader v-model="fileList"
                     image-fit="fill"
                     :after-read="afterRead" /> -->
     </div>
+    <div @click="_getInfo">test</div>
     <div class="btn-wrap">
       <van-button type="default"
                   ref="submits"
@@ -149,7 +175,7 @@
                            :filter="filter"
                            :formatter="formatter" />
     </van-action-sheet>
-
+    <!-- 交通地址 -->
     <van-action-sheet v-model="showTransportation"
                       title="">
       <van-tabs>
@@ -166,15 +192,14 @@
                       @change="onBackChange" />
         </van-tab>
       </van-tabs>
-
     </van-action-sheet>
-
+    <!-- 差旅地址 -->
     <van-action-sheet v-model="showBusinessTripAddress"
                       title="">
       <van-area :area-list="areaList"
                 @confirm="onBusinessTripAddressConfirm" />
     </van-action-sheet>
-
+    <!-- 费用类型 -->
     <van-action-sheet v-model="showChargeType"
                       title="">
       <van-picker show-toolbar
@@ -182,6 +207,15 @@
                   :columns="chargeTypeList"
                   @cancel="onChargeTypeCancel"
                   @confirm="onChargeTypeConfirm" />
+    </van-action-sheet>
+    <!-- 指派审批人 -->
+    <van-action-sheet v-model="showApprover"
+                      title="">
+      <van-picker show-toolbar
+                  title=""
+                  :columns="toApproverList"
+                  @cancel="onToApproverCancel"
+                  @confirm="onToApproverConfirm" />
     </van-action-sheet>
     <!-- 同行人弹框 -->
     <van-popup class="my-popup"
@@ -194,12 +228,14 @@
                @click="backParntnerPopup">
             <van-icon name="arrow-left" />
           </div>
+
           <div class="right"
                @click="savePartner">保存</div>
         </div>
         <div class="popup-content">
           <div>添加同行人</div>
-          <div class="leader"><span class="order">1.</span> {{leader}}</div>
+          <div class="leader">
+            <span class="order">1.</span> {{leader}}</div>
           <md-input-item :title="index+2+'.'"
                          :key="index"
                          v-for="(p,index) of dataModel"
@@ -220,7 +256,7 @@
                v-model="showUploaderAttachTrip">
       <div class="my-swiper">
         <swiper :options="swiperOption">
-          <swiper-slide v-for="(item,index) in swiperTripList"
+          <swiper-slide v-for="(item,index) of swiperTripList"
                         :key="index">
             <div>
               <div class="popup-wrap">
@@ -229,31 +265,43 @@
                        @click="backUploaderAttachTrip">
                     <van-icon name="arrow-left" />
                   </div>
+                  <div>{{item.partnerName}}</div>
                   <div class="right"
                        @click="uploaderSaveTrip">保存</div>
                 </div>
-                <div class="popup-content popup-trip">
+
+                <div class="popup-content popup-trip"
+                     v-for="(atta,i) of item.attaList"
+                     :key="i">
                   <div>添加附件</div>
-                  <div class="uploader-wrap">
+                  <div class="uploader-wrap"
+                       @click="currentIndex(index)">
 
                     <van-uploader :max-count="1"
-                                  v-model="item.attachfileList"
-                                  image-fit="fill"
-                                  :after-read="afterRead" />
+                                  @delete="deleteTrip(index,i)"
+                                  :before-read="beforeAttaListTrip(index)"
+                                  :after-read="afterRead"
+                                  v-model="atta.attachfileList"
+                                  image-fit="fill">
+
+                    </van-uploader>
                   </div>
-                  <div style="margin-top:10px;">
+                  <div v-if="atta.attachInfo"
+                       style="margin-top:10px;">
                     <van-field class="attach-textarea"
-                               v-model="item.attachInfo"
+                               v-model="atta.attachInfo"
                                rows="3"
                                label=""
                                type="textarea"
                                placeholder="" />
                   </div>
-                  <div style="margin-top:10px;">
+                  <div v-if="atta.attachTitle"
+                       style="margin-top:10px;">
                     <md-input-item title="附件标题"
-                                   v-model="item.attachTitle"
+                                   v-model="atta.attachTitle"
                                    align="right"></md-input-item>
                   </div>
+
                 </div>
               </div>
             </div>
@@ -305,7 +353,8 @@
                         <span class="text"> {{item.isPayTaxText}}</span>
                         <van-switch v-model="item.isPayTax"
                                     size="16px"
-                                    @change="onChangePayTax(item.isPayTaxText,index)" /></span>
+                                    @change="onChangePayTax(item.isPayTaxText,index)" />
+                      </span>
                     </md-field-item>
                   </div>
                 </div>
@@ -322,6 +371,9 @@
 </template> 
 
 <script>
+import data from '../../assets/data/type'
+
+import { myHttp, PROD_URL } from 'config/http'
 import Calendar from 'vue-calendar-component'
 import { chargeTypeEnum } from '../../config/enum'
 import AreaList from '../../common/area'
@@ -369,6 +421,12 @@ export default {
   created () {
     console.log(chargeTypeEnum)
     this.chargeTypeEnum = chargeTypeEnum
+    // this._getInfo()
+
+    if (this.partnerList.length === 0) {
+      this.partnerText = this.leader  // 初始同行人为默认领队
+      this.partnerList = [{ value: this.leader }]
+    }
   },
   computed: {
     transportation () {
@@ -376,46 +434,44 @@ export default {
         return '请选择'
       }
       return '去程:' + this.goTrans + ' ' + '回程:' + this.backTrans
+    },
+    addressStr () {
+      let content = this.address.map(item => item.label).join(' ')
+      console.log(content)
+      return content
     }
+
   },
   data () {
     return {
+      toApprover: '', // 指派审批人
+      showApprover: false,    // 显示指派审批人
+      toApproverList: ['A审批人', 'B审批人', 'C审批人'],
+      show: false,
+      address: [],
+      data: data,
       choose: 0,
-      chooseOne: '',
+      chooseOne: '',         // 前面第一个日期
       chooseOneFilter: '',   // 带有中文的
-      chooseTwo: '',
+      chooseTwo: '',         // 后面第二个日期
       chooseTwoFilter: '',
       arr: [],
       // arr: [{ date: '2019/11/1', className: 'mark1' }, { date: '2019/11/13', className: 'mark2' }],
       showCalendar: false,  // 显示日历
+      attaTripIndex: 0,   // 差旅上传附件索引
       swiperTripList: [
-        { attachTitle: '2019培训会1',
-          attachInfo: '1诚邀张三于2019年11月20日至武汉市江岸区澳门路金冠大厦xxx参加xxxxx培训xxxxxxxx'
-        },
-        { attachTitle: '2019培训会2',
-          attachInfo: '2诚邀张三于2019年11月20日至武汉市江岸区澳门路金冠大厦xxx参加xxxxx培训xxxxxxxx'
-        }, {
-          attachTitle: '2019培训会3',
-          attachInfo: '3诚邀张三于2019年11月20日至武汉市江岸区澳门路金冠大厦xxx参加xxxxx培训xxxxxxxx'
+        {
+          attaList: [{
+            attachfileList: [],
+            attachTitle: '',
+            attachInfo: ''
+          }],
+          partnerName: ''
         }
       ],
       swiperServeList: [{
         attachfileList: [],
         providerName: '武汉铁路交通1',
-        expendTotalMoney: '7340',
-        billDate: '2019年10月28日',
-        isPayTaxText: '否',
-        isPayTax: false
-      }, {
-        attachfileList: [],
-        providerName: '武汉铁路交通2',
-        expendTotalMoney: '7340',
-        billDate: '2019年10月28日',
-        isPayTaxText: '否',
-        isPayTax: false
-      }, {
-        attachfileList: [],
-        providerName: '武汉铁路交通3',
         expendTotalMoney: '7340',
         billDate: '2019年10月28日',
         isPayTaxText: '否',
@@ -450,9 +506,9 @@ export default {
       chargeTypeText: '',                   // 费用类型文字
       chargeType: 0,                        // 费用类型 1 2
       showChargeType: false,
-      chargeTypeList: ['差旅费', '招待费'],
+      chargeTypeList: ['差旅费', '市场费用', '非市场费用'],
       isabled: true,                        // 提交按钮是否可用
-      leader: '领队xx',                           // 领队人
+      leader: '领队TEST',                           // 领队人
       businessTripDate: '',                 // 出差时间
       businessTripAddress: '',              // 出差地点
       showBusinessTripAddress: false,       // 显示出差地址
@@ -479,20 +535,42 @@ export default {
       checkProj: '',                         // 核算项目
       providerName: '',                      // 供应商名称
       isHaveAttachment: false,               // 是否有附件
-      attachfileList: []                     // 纸质附件
-
+      attachfileList: [],                     // 纸质附件
+      imgeListTab: []                         // 上传接口的图片组名称
     }
   },
 
   methods: {
+    handleChange ({ options }) {
+      console.log(options)
+      this.address = options
+    },
+    _getInfo () {
+      myHttp(PROD_URL + '/',
+        {
+          functionId: 'F0001',
+          body: { a: '1' }
+        }).then(res => {
+          console.log(res)
+          if (res.rtnCode === '0000') {
+
+          } else {
+            Toast.info(res.rtnMsg)
+          }
+        })
+    },
+    // 显示指派审批人弹框
+    onShowApprover () {
+      this.showApprover = true
+    },
     onChangePayTax (value, index) {
       console.log(value, index)
       if (value === '否') {
-        this.swiperTripList[index].isPayTaxText = '是'
-        this.swiperTripList[index].isPayTax = true
+        this.swiperServeList[index].isPayTaxText = '是'
+        this.swiperServeList[index].isPayTax = true
       } else {
-        this.swiperTripList[index].isPayTaxText = '否'
-        this.swiperTripList[index].isPayTax = false
+        this.swiperServeList[index].isPayTaxText = '否'
+        this.swiperServeList[index].isPayTax = false
       }
     },
     onBusinessTripDate () {
@@ -514,7 +592,6 @@ export default {
         let filterData = data.split('/')
         this.chooseTwoFilter = filterData[0] + '年' + filterData[1] + '月' + filterData[2] + '日'
         this.showCalendar = false
-        // TODO  比较日期大小
       } else {
         this.choose = 1
         this.chooseOne = data
@@ -523,7 +600,6 @@ export default {
         let filterData = data.split('/')
         this.chooseOneFilter = filterData[0] + '年' + filterData[1] + '月' + filterData[2] + '日'
       }
-      console.log(this.arr)
       if (this.arr.length === 2) {
         let date1 = this.arr[0].date
         let date2 = this.arr[1].date
@@ -576,22 +652,78 @@ export default {
       this.showUploaderAttachServe = false
     },
     uploaderSaveTrip () {
+      console.log(this.swiperTripList)
+      // 组装上传数据
+      // this.imgeListTab =
       this.showUploaderAttachTrip = false
     },
     uploaderSaveServe () {
       this.showUploaderAttachTrip = false
     },
+    // 显示差旅上传弹框
     noticeAttache () {
       console.log('upTrip')
       this.showUploaderAttachTrip = true
+      // 差旅上传弹框添加同行人名字
+      if (this.partnerList.length === 1) {
+        this.swiperTripList = [
+          {
+            attaList: [{
+              attachfileList: [],
+              attachTitle: '',
+              attachInfo: ''
+            }],
+            partnerName: this.leader
+          }
+        ]
+      } else {
+        for (let i = 0; i < this.partnerList.length; i++) {
+          console.log(this.partnerList[i].value)
+          this.swiperTripList[i].partnerName = this.partnerList[i].value
+        }
+      }
     },
     attachUploader () {
       console.log('upServe')
       this.showUploaderAttachServe = true
     },
-    afterRead (file) {
+    beforeDelete (file, detail) {
+      // console.log(file)
+      // console.log(detail)
+    },
+    deleteTrip (index, i) {
+      console.log(this.attaTripIndex)
+      console.log(i)
+      console.log(index)
+      console.log(this.swiperTripList[this.attaTripIndex].attaList)
+      this.swiperTripList[index].attaList.splice(i, 1)
+      console.log(this.swiperTripList)
+    },
+    // 差旅上传附件索引存储
+    currentIndex (i) {
+      console.log('currentIndex')
+      console.log(i)
+      this.attaTripIndex = i
+    },
+
+    beforeAttaListTrip () {
+
+    },
+    afterRead (file, detail) {
       // 此时可以自行将文件上传至服务器
       console.log(file)
+      console.log(detail)
+      console.log('this.attaTripIndex')
+      console.log(this.attaTripIndex)
+      if (file) {
+        this.swiperTripList[this.attaTripIndex].attaList.push({
+          attachfileList: [],
+          attachTitle: '',
+          attachInfo: ''
+        })
+      }
+      // TODO 反显图片附件信息
+      console.log(this.swiperTripList)
     },
     onAttachment () {
 
@@ -634,11 +766,35 @@ export default {
         for (let i = 0; i < this.partnerList.length; i++) {
           this.partnerText += this.partnerList[i].value + ','
         }
+        console.log(this.partnerText)
         this.partnerText = this.partnerText.substr(0, this.partnerText.length - 1)
       } else {
         this.partnerText = this.partnerList[0].value + ',' + this.partnerList[1].value + ',' + this.partnerList[2].value + '...'
       }
       console.log(this.partnerList)
+
+      let swiperLength = this.partnerList.length
+      this.swiperTripList = [
+        {
+          attaList: [{
+            attachfileList: [],
+            attachTitle: '',
+            attachInfo: ''
+          }],
+          partnerName: this.leader
+        }
+      ]
+      for (let j = 0; j < swiperLength - 1; j++) {
+        console.log(this.swiperTripList)
+        this.swiperTripList.push({
+          attaList: [{
+            attachfileList: [],
+            attachTitle: '',
+            attachInfo: ''
+          }]
+          // partnerName: this.leader
+        })
+      }
     },
     onAddPartner () {
       console.log(this.dataModel.length)
@@ -689,24 +845,33 @@ export default {
       this.showChargeType = true
     },
     onChargeTypeConfirm (value, index) {
-      console.log(`当前值：${value}, 当前索引：${index}`)
+      console.log(`当前类型值：${value}, 当前索引：${index}`)
       this.chargeTypeText = value
-      this.showChargeType = false
+
       if (this.chargeTypeText === '差旅费') {
         this.chargeType = chargeTypeEnum.TRIP
-      } else if (this.chargeTypeText === '招待费') {
+      } else if (this.chargeTypeText === '市场费用' || this.chargeTypeText === '非市场费用') {
         this.chargeType = chargeTypeEnum.SERVE
       }
+      this.showChargeType = false
+      console.log(this.chargeType)
     },
     onChargeTypeCancel () {
       this.showChargeType = false
     },
+    // 指派审批人
+    onToApproverCancel () {
+      this.showApprover = false
+    },
+    onToApproverConfirm (value, index) {
+      console.log(`当前值指派审批人：${value}, 当前索引：${index}`)
+      this.toApprover = value
+      this.showApprover = false
+    },
     change (e) {
       console.log(e.getValues())
     },
-    submit () {
-      console.log('提交')
-    },
+
     filter (type, options) {
       return options
     },
@@ -717,17 +882,118 @@ export default {
         return `${value}月`
       }
       return value
+    },
+    submit () {
+      console.log('提交')
+      // this._getInfo()
+
+      this.validate()
+      myHttp(PROD_URL + '/',
+        {
+          functionId: 'F0001',
+          body: {
+            channelDate: this.startDate.replace(/-/g, ''), // 发起方日期
+            channelTime: '',                               // 发起方时间
+
+            TAB_LEAN_EHR: this.leader,                     // 领队人
+            TAB_GROUP_EHR: this.partnerList,               // 同行人
+            TAB_GROUP_NUM: '',                             // 同行人人数
+            TAB_STR_DATE: this.chooseOne,                  // 出差开始日期
+            TAB_END_DATE: this.chooseTwo,                  // 出差结束日期
+            TAB_DAY_NUM: '',                               // 出差天数;
+            TAB_CZ_ADDRESS: this.businessTripAddress,      // 出差地点;
+            TAB_CZ_TYPE: '',                               // 出差任务类型 公务：GW 营销 YX 会议 HY 培训 PX 实习SX 其它 QT
+            TAB_CZ_FILE: '',                               // 出差通知或文件名称;
+            TAB_CZ_FILENO: '',                             // 出差通知或文件文号;
+            TAB_TO_JTGJ: this.goTrans,                     // 出差去程交通;
+            TAB_BCK_JTGJ: this.backTrans,                  // 出差返程交通;
+            NOTES: this.remarkInfoContent,                 // 备注;
+            TAB_EHR_TELL: ''                               // 经办人电话;
+          }
+        }).then(res => {
+          console.log(res)
+          if (res.rtnCode === '0000') {
+
+          } else {
+            Toast.info(res.rtnMsg)
+          }
+        })
+    },
+    validate () {
+      console.log(this.businessTripAddress)
+      if (this.startDate === '') {
+        Toast('请选择立项日期')
+        return
+      } else if (this.chargeType === 0) {
+        Toast('请选择费用类型')
+        return
+      } else if (this.toApprover === '') {
+        Toast('请选择指派审批人')
+        return
+      }
+      if (this.chargeType === 1) {
+        if (this.chooseOne === '' && this.chooseTwo === '') {
+          Toast('请选择出差时间')
+        } else if (this.chooseOne === '') {
+          Toast('请选择开始出差时间')
+        } else if (this.chooseTwo === '') {
+          Toast('请选择结束出差时间')
+        } else if (this.businessTripAddress === '') {
+          Toast('请选择出差地点')
+        } else if (this.goTrans === '' && this.backTrans === '') {
+          Toast('请选择交通工具')
+        } else if (this.goTrans === '') {
+          Toast('请选择去程交通工具')
+        } else if (this.backTrans === '') {
+          Toast('请选择返程交通工具')
+        }
+      }
     }
   }
 }
 </script>
 <style lang="less">
 .view-project-apply {
-  @import "../../assets/styles/custom/input.less";
-  @import "../../assets/styles/custom/button.less";
-  @import "../../assets/styles/custom/collapse.less";
-  @import "../../assets/styles/custom/textarea.less";
-  @import "../../assets/styles/custom/calendar.less";
+  @import '../../assets/styles/custom/input.less';
+  @import '../../assets/styles/custom/button.less';
+  @import '../../assets/styles/custom/collapse.less';
+  @import '../../assets/styles/custom/textarea.less';
+  @import '../../assets/styles/custom/calendar.less';
+
+  // md-popup md-tab-picker
+
+  .md-popup-title-bar {
+    height: 40px;
+  }
+  .md-popup-title-bar .title-bar-title {
+    padding-top: 14px;
+    p.title {
+      font-size: 16px;
+    }
+  }
+  .md-popup-title-bar .md-popup-close {
+    padding-top: 14px;
+  }
+  .md-tab-bar-item {
+    min-height: 40px;
+  }
+  .md-cell-item-body {
+    padding: 0;
+    min-height: 40px;
+  }
+  .md-tab-picker .md-tab-bar-list .md-tab-bar-item {
+    font-size: 16px;
+  }
+  .md-cell-item-content {
+    font-size: 16px;
+  }
+  .lead-input {
+    .md-field-item-control {
+      input {
+        color: #858b9c;
+      }
+    }
+  }
   .my-swiper {
     .popup-content.popup-trip,
     .popup-content.popup-serve {
@@ -778,7 +1044,7 @@ export default {
     }
     .swiper-slide {
       overflow-y: scroll;
-      padding: 8px 16px;
+      padding: 0 16px;
       border-radius: 20px;
       background-position: center;
       background-size: cover;
@@ -789,6 +1055,11 @@ export default {
     }
     .popup-wrap {
       .popup-title {
+        padding: 8px 0;
+        background: #fff;
+        position: sticky;
+        z-index: 99;
+        top: 0;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -965,7 +1236,7 @@ export default {
   }
   .uploader-wrap {
     background: #fff;
-    overflow-x: auto;
+    // overflow-x: auto;
     text-align: center;
     display: flex;
     justify-content: center;
@@ -977,6 +1248,25 @@ export default {
       margin: 8px 16px;
       width: 280px;
       height: 110px;
+      background-image: url('../../assets/img/timg.jpg');
+      background-size: cover;
+      background-repeat: no-repeat;
+      .mark-bg {
+        background: rgba(0, 0, 0, 0.2);
+        width: 100%;
+        height: 100%;
+        position: relative;
+        img {
+          display: inline-block;
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 28px;
+          height: 24px;
+          margin-top: -12px;
+          margin-left: -14px;
+        }
+      }
     }
     .van-uploader__wrapper {
       // -webkit-flex-wrap: nowrap;

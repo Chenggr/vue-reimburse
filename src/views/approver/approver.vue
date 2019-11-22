@@ -10,7 +10,8 @@
       <span class="right-span"
             slot="right"
             @click="clickRefreshBtn">
-        <van-icon name="replay" /></span>
+        <van-icon name="replay" />
+      </span>
     </x-header>
     <van-tabs v-model="activeName"
               sticky
@@ -55,7 +56,9 @@
                       </div>
                     </div>
                   </template>
-                  <div class="cell-content">
+                  <div class="cell-content"
+                       v-if="item.type!='2'"
+                       @click="onExpend(item)">
                     <div class="cell-left">
                       <div class="item">{{item.title1}}</div>
                       <div class="item">{{item.title2}}</div>
@@ -64,10 +67,37 @@
                       <div class="item">{{item.date}}</div>
                       <div class="item">{{item.money}}</div>
                     </div>
-                    <div class="cell-right">
-                      <div class="item">{{item.status}}</div>
-                      <div class="">
-                        <div class="edit">{{item.edit}}</div>
+                    <div class="right-box">
+                      <div class="cell-right">
+                        <div class="item">{{item.status}}</div>
+                        <div class=""
+                             v-if="item.edit">
+                          <div class="edit">{{item.edit}}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="cell-type-2"
+                       v-if="item.type=='2'"
+                       @click="onExpend(item)">
+                    <div class="left">
+                      <div class="item-2"
+                           v-for="(cell,index) of item.list"
+                           :key="index">
+                        <div class="item-2-left">
+                          <div class="cell">{{cell.title1}}</div>
+                          <div class="cell">{{cell.title2}}</div>
+                        </div>
+                        <div class="item-2-right">
+                          <div class="cell">{{cell.date}}</div>
+                          <div class="cell">{{cell.money}}</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="right">
+                      <div>
+                        <div class="status">{{item.status}}</div>
+
                       </div>
                     </div>
                   </div>
@@ -147,7 +177,9 @@
                       </div>
                     </div>
                   </template>
-                  <div class="cell-content">
+                  <div class="cell-content"
+                       @click="onExpend(item)"
+                       v-if="item.type!='2'">
                     <div class="cell-left">
                       <div class="item">{{item.title1}}</div>
                       <div class="item">{{item.title2}}</div>
@@ -156,10 +188,36 @@
                       <div class="item">{{item.date}}</div>
                       <div class="item">{{item.money}}</div>
                     </div>
-                    <div class="cell-right">
-                      <div class="item">{{item.status}}</div>
-                      <div class="">
-                        <div class="edit">{{item.edit}}</div>
+                    <div class="right-box">
+                      <div class="cell-right">
+                        <div class="item">{{item.status}}</div>
+                        <div v-if="item.edit">
+                          <div class="edit">{{item.edit}}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="cell-type-2"
+                       v-if="item.type=='2'"
+                       @click="onExpend(item)">
+                    <div class="left">
+                      <div class="item-2"
+                           v-for="(cell,index) of item.list"
+                           :key="index">
+                        <div class="item-2-left">
+                          <div class="cell">{{cell.title1}}</div>
+                          <div class="cell">{{cell.title2}}</div>
+                        </div>
+                        <div class="item-2-right">
+                          <div class="cell">{{cell.date}}</div>
+                          <div class="cell">{{cell.money}}</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="right">
+                      <div>
+                        <div class="status">{{item.status}}</div>
+
                       </div>
                     </div>
                   </div>
@@ -355,6 +413,12 @@ export default {
 
   },
   methods: {
+    onExpend (item) {
+      console.log('onExpend')
+      console.log(item)
+
+      this.showExpendPopup = true
+    },
     goback () {
       this.$router.push('/')
     },
@@ -425,7 +489,7 @@ export default {
       return value
     },
     init () {
-      axios.get('/static/data/todoList.json').then(res => {
+      axios.get('/static/data/todoList-sp.json').then(res => {
         console.log(res)
         this.totCount = res.data.totCount
         this.todoList = res.data.todoList
@@ -440,7 +504,7 @@ export default {
       })
     },
     _getRecord () {
-      axios.get('/static/data/recordList.json').then(res => {
+      axios.get('/static/data/recordList-sp.json').then(res => {
         console.log(res)
         this.totCount2 = res.data.totCount
         this.recordList = res.data.recordList
@@ -603,12 +667,12 @@ export default {
   }
 }
 .view-approver {
-  @import "../../assets/styles/custom/tabs.less";
+  @import '../../assets/styles/custom/tabs.less';
   position: fixed;
   width: 100%;
   height: 100%;
   background-color: #fff;
-  @import "../../assets/styles/custom/button.less";
+  @import '../../assets/styles/custom/button.less';
   .my-search.van-popup {
     width: 100%;
     height: 100%;
@@ -780,15 +844,74 @@ export default {
     }
   }
   .reimburse-cell {
+    .cell-type-2 {
+      display: flex;
+      justify-content: space-between;
+      background: #eee;
+      border-radius: 10px;
+      margin: 8px 4px;
+      box-shadow: 2px 2px 5px #888;
+      .left {
+        width: 66.6%;
+        .item-2 {
+          display: flex;
+          justify-content: space-between;
+          .cell {
+            padding: 8px 16px;
+          }
+          .item-2-left {
+            width: 50%;
+            // text-align: center;
+          }
+          .item-2-right {
+            width: 50%;
+            text-align: center;
+            .cell {
+              padding-right: 0;
+            }
+          }
+        }
+      }
+      .right {
+        width: 33.3%;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        .status {
+          margin-right: 10px;
+          padding: 8px 16px;
+          display: flex;
+          justify-content: center;
+        }
+        .edit {
+          width: 60px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          margin: 0 8px;
+          padding: 4px 8px;
+          background-color: #333;
+          color: #fff;
+          border-radius: 20px;
+        }
+      }
+    }
+
     .cell-content {
       display: flex;
       justify-content: space-between;
     }
-
+    .right-box {
+      width: 90px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
     .cell-left,
     .cell-middle,
     .cell-right {
       margin: 8px 0;
+
       .item {
         text-align: center;
         display: flex;

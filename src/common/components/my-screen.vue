@@ -2,18 +2,14 @@
   <div class="my-screen">
     <div class="title">选择金额</div>
     <div class="wrap">
-      <div class="item-wrap">
-        <div class="item">全部</div>
+      <div class="item-wrap"
+           v-for="(option,index) of options1"
+           :key="index">
+        <div class="item"
+             :class="{'click-item':option.isClick}"
+             @click="clickOption1(option,index)">{{option.name}}</div>
       </div>
-      <div class="item-wrap">
-        <div class="item">少于1000元</div>
-      </div>
-      <div class="item-wrap">
-        <div class="item">1000-5000</div>
-      </div>
-      <div class="item-wrap">
-        <div class="item">5000-10000</div>
-      </div>
+
     </div>
     <div class="input-money-wrap">
       <md-input-item title=""
@@ -33,22 +29,20 @@
                      placeholder="最高金额"></md-input-item>
     </div>
     <div class="wrap wrap-type">
-      <div class="item-wrap">
-        <div class="item">全部</div>
+      <div class="item-wrap"
+           v-for="(option,index) of options2"
+           :key="index">
+        <div class="item"
+             :class="{'click-item':option.isClick}"
+             @click="clickOption2(option,index)">{{option.name}}</div>
       </div>
-      <div class="item-wrap">
-        <div class="item">综合保障</div>
-      </div>
-      <div class="item-wrap">
-        <div class="item">费用差旅</div>
-      </div>
-      <div class="item-wrap">
-        <div class="item">经营费用</div>
-      </div>
+
     </div>
     <div class="btns">
-      <div class="btn">重置</div>
-      <div class="btn">确认</div>
+      <div class="btn"
+           @click="reset">重置</div>
+      <div class="btn"
+           @click="sure">确认</div>
     </div>
   </div>
 </template>  
@@ -58,10 +52,60 @@ export default {
   data () {
     return {
       minMoney: '',
-      maxMoney: ''
+      maxMoney: '',
+
+      checkedObj1: {},
+      checkedObj2: {}
+
+    }
+  },
+  props: {
+    options1: {
+      type: Array,
+      default: []
+    },
+    options2: {
+      type: Array,
+      default: []
     }
   },
   methods: {
+    sure () {
+      this.options1.forEach((item, index) => {
+        if (item.isClick) {
+          this.checkedObj1 = item
+        }
+      })
+      this.options2.forEach((item, index) => {
+        if (item.isClick) {
+          this.checkedObj2 = item
+        }
+      })
+      this.$emit('sure', this.checkedObj1, this.checkedObj2)
+    },
+    reset () {
+      this.$emit('reset')
+    },
+    clickOption1 (val, index) {
+      this.$emit('clickOption1', val)
+      this.options1.forEach((item, i) => {
+        if (i === index) {
+          this.options1[i].isClick = true
+        } else {
+          this.options1[i].isClick = false
+        }
+      })
+    },
+    clickOption2 (val, index) {
+      this.$emit('clickOption2', val)
+      this.options2.forEach((item, i) => {
+        if (i === index) {
+          this.options2[i].isClick = true
+        } else {
+          this.options2[i].isClick = false
+        }
+      })
+    },
     onInputKeydown (name, event) {
       console.log(`[Mand Mobile InputItem keydown] ${event.keyCode}`)
     },
@@ -114,6 +158,11 @@ export default {
       border-radius: 4px;
       border: 1px solid #999;
       text-align: center;
+    }
+    .click-item {
+      background: #49a3e6;
+      border: 1px solid #49a3e6;
+      color: #fff;
     }
   }
 

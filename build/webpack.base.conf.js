@@ -8,7 +8,7 @@ const PostCompilePlugin = require('webpack-post-compile-plugin')
 const TransformModulesPlugin = require('webpack-transform-modules-plugin')
 const webpack = require('webpack')
 
-function resolve (dir) {
+function resolve(dir) {
   return path.join(__dirname, '..', dir)
 }
 
@@ -49,17 +49,17 @@ let webpackConfig = {
     rules: [
       ...(config.dev.useEslint
         ? [
-          {
-            test: /\.(js|vue)$/,
-            loader: 'eslint-loader',
-            enforce: 'pre',
-            include: [resolve('src'), resolve('test')],
-            options: {
-              formatter: require('eslint-friendly-formatter'),
-              emitWarning: !config.dev.showEslintErrorsInOverlay
+            {
+              test: /\.(js|vue)$/,
+              loader: 'eslint-loader',
+              enforce: 'pre',
+              include: [resolve('src'), resolve('test')],
+              options: {
+                formatter: require('eslint-friendly-formatter'),
+                emitWarning: !config.dev.showEslintErrorsInOverlay
+              }
             }
-          }
-        ]
+          ]
         : []),
       {
         test: /\.less$/,
@@ -73,7 +73,11 @@ let webpackConfig = {
       {
         test: /\.js$/,
         loader: 'babel-loader',
-        include: [resolve('src'), resolve('test')]
+        include: [
+          resolve('src'),
+          resolve('test')
+          // resolve('./node_modules/vue-watermark-directive/dist')
+        ]
       },
       {
         test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,

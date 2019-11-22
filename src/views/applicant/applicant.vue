@@ -9,7 +9,8 @@
       <span class="right-span"
             slot="right"
             @click="clickRefreshBtn">
-        <van-icon name="replay" /></span>
+        <van-icon name="replay" />
+      </span>
     </x-header>
     <van-tabs v-model="activeName"
               sticky
@@ -54,7 +55,9 @@
                       </div>
                     </div>
                   </template>
-                  <div class="cell-content">
+                  <div v-if="item.type!='2'"
+                       class="cell-content"
+                       @click="onExpend(item)">
                     <div class="cell-left">
                       <div class="item">{{item.title1}}</div>
                       <div class="item">{{item.title2}}</div>
@@ -66,6 +69,30 @@
                     <div class="cell-right">
                       <div class="item">{{item.status}}</div>
                       <div class="">
+                        <div class="edit">{{item.edit}}</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="cell-type-2"
+                       v-if="item.type=='2'"
+                       @click="onExpend(item)">
+                    <div class="left">
+                      <div class="item-2"
+                           v-for="(cell,index) of item.list"
+                           :key="index">
+                        <div class="item-2-left">
+                          <div class="cell">{{cell.title1}}</div>
+                          <div class="cell">{{cell.title2}}</div>
+                        </div>
+                        <div class="item-2-right">
+                          <div class="cell">{{cell.date}}</div>
+                          <div class="cell">{{cell.money}}</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="right">
+                      <div>
+                        <div class="status">{{item.status}}</div>
                         <div class="edit">{{item.edit}}</div>
                       </div>
                     </div>
@@ -146,7 +173,9 @@
                       </div>
                     </div>
                   </template>
-                  <div class="cell-content">
+                  <div class="cell-content"
+                       v-if="item.type!='2'"
+                       @click="onExpend(item)">
                     <div class="cell-left">
                       <div class="item">{{item.title1}}</div>
                       <div class="item">{{item.title2}}</div>
@@ -158,6 +187,30 @@
                     <div class="cell-right">
                       <div class="item">{{item.status}}</div>
                       <div class="">
+                        <div class="edit">{{item.edit}}</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="cell-type-2"
+                       v-if="item.type=='2'"
+                       @click="onExpend(item)">
+                    <div class="left">
+                      <div class="item-2"
+                           v-for="(cell,index) of item.list"
+                           :key="index">
+                        <div class="item-2-left">
+                          <div class="cell">{{cell.title1}}</div>
+                          <div class="cell">{{cell.title2}}</div>
+                        </div>
+                        <div class="item-2-right">
+                          <div class="cell">{{cell.date}}</div>
+                          <div class="cell">{{cell.money}}</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="right">
+                      <div>
+                        <div class="status">{{item.status}}</div>
                         <div class="edit">{{item.edit}}</div>
                       </div>
                     </div>
@@ -201,6 +254,22 @@
                              type="year-month" />
       </van-action-sheet>
 
+      <!-- 支出弹框 -->
+      <van-popup class="my-popup"
+                 :close-on-click-overlay="true"
+                 v-model="showExpendPopup"
+                 round>
+        <div class="popup-wrap">
+
+          <my-expend :type="'TRIP'"
+                     :list="expendListTrip"></my-expend>
+          <!-- <my-expend :type="'SERVE'"
+                     :list="expendListServe"></my-expend> -->
+
+        </div>
+      </van-popup>
+      <!-- 支出弹框 -->
+
       <!-- 筛选弹框 -->
       <van-popup class="my-popup"
                  :close-on-click-overlay="true"
@@ -208,12 +277,18 @@
                  round>
         <div class="popup-wrap">
 
-          <my-screen></my-screen>
+          <my-screen :options1="options1"
+                     :options2="options2"
+                     @clickOption1="clickScreenOption1"
+                     @clickOption2="clickScreenOption2"
+                     @sure="sureScreen"
+                     @reset="resetScreen"></my-screen>
 
         </div>
       </van-popup>
       <!-- 筛选弹框 -->
-      <!-- 搜索底部弹框 -->
+
+      <!-- 搜索弹框 -->
       <van-popup class="my-search"
                  position="right"
                  :close-on-click-overlay="true"
@@ -240,6 +315,7 @@
 </template>
 <script>
 import myScreen from '../../common/components/my-screen'
+import myExpend from '../../common/components/my-expend'
 import { XHeader } from 'vux'
 import { mapGetters, mapMutations } from 'vuex'
 import axios from 'axios'
@@ -262,6 +338,7 @@ import {
 export default {
   name: 'Applicant',
   components: {
+    myExpend,
     myScreen,
     XHeader,
     VanDatetimePicker: DatetimePicker,
@@ -280,6 +357,57 @@ export default {
 
   data () {
     return {
+      expendListTrip: [
+        {
+          apart: '信息科技部',
+          name: '张三丰',
+          staffId: 3636452,
+          payDeatil: [],
+          totalCount: '8张',
+          totalMoney: '2874.00'
+        }
+      ],
+      expendListServe: [
+        {
+          apart: '信息科技部',
+          name: '张三丰',
+          staffId: 3636452,
+          payDetail: [
+            {
+              type: '招待费',
+              money: '193.00',
+              count: 1,
+              affiliation: '招待来往'
+            },
+            {
+              type: '招待费',
+              money: '193.00',
+              count: 1,
+              affiliation: '招待来往'
+            },
+            {
+              type: '招待费',
+              money: '193.00',
+              count: 1,
+              affiliation: '招待来往'
+            }
+          ],
+          totalCount: 3,
+          totalMoney: '597.00'
+        }
+      ],
+      options1: [
+        { isClick: true, name: '全部' },
+        { isClick: false, name: '少于1000元' },
+        { isClick: false, name: '1000-5000' },
+        { isClick: false, name: '5000-10000' }
+      ],
+      options2: [
+        { isClick: true, name: '全部' },
+        { isClick: false, name: '综合保障' },
+        { isClick: false, name: '费用差旅' },
+        { isClick: false, name: '经营费用' }
+      ],
       Tab: 'todo',
       finishedText: '',
       finishedText2: '',
@@ -304,8 +432,10 @@ export default {
       currentDate: new Date(),
       DateSearch: dateFormat('YYYY年mm月', new Date()),
       showScreeningPopup: false,               // 显示筛选弹框
+      showScreeningPopup2: false,               // 显示筛选弹框2
       showSearchPopup: false,      // 显示搜索弹框
-      searchValue: ''
+      searchValue: '',
+      showExpendPopup: false          // 显示支出弹框
     }
   },
   created () {
@@ -353,6 +483,51 @@ export default {
 
   },
   methods: {
+    ...mapMutations({
+      'setRefreshBtn': 'SET_REFRESH_BTN'
+    }),
+    onExpend (item) {
+      console.log(item)
+      if (item.type === 2) {
+        // 显示支出单
+        this.showExpendPopup = true
+      } else {
+        this.$router.push({ name: 'projectDetail', params: item })
+      }
+    },
+    onScreening () {
+      this.resetScreen()
+      this.showScreeningPopup = true
+    },
+
+    clickScreenOption1 (val) {
+      console.log(val)
+    },
+    clickScreenOption2 (val) {
+      console.log(val)
+    },
+    sureScreen (obj1, obj2) {
+      console.log('sure')
+      console.log(obj1)
+      console.log(obj2)
+      this.showScreeningPopup = false
+    },
+
+    resetScreen () {
+      console.log('reset')
+      this.options1 = [
+        { isClick: true, name: '全部' },
+        { isClick: false, name: '少于1000元' },
+        { isClick: false, name: '1000-5000' },
+        { isClick: false, name: '5000-10000' }
+      ]
+      this.options2 = [
+        { isClick: true, name: '全部' },
+        { isClick: false, name: '综合保障' },
+        { isClick: false, name: '费用差旅' },
+        { isClick: false, name: '经营费用' }
+      ]
+    },
     goback () {
       this.$router.push('/')
     },
@@ -360,9 +535,6 @@ export default {
       console.log(this.pageNo, this.pageSize, this.totCount)
       return this.pageNo * this.pageSize <= this.totCount
     },
-    ...mapMutations({
-      'setRefreshBtn': 'SET_REFRESH_BTN'
-    }),
     clickRefreshBtn () {
       if (this.Tab === 'todo') {
         console.log('刷新我的待办')
@@ -502,9 +674,7 @@ export default {
         this.closeAll()
       }
     },
-    onScreening () {
-      this.showScreeningPopup = true
-    },
+
     onSearching () {
       // this.$router.push({ name: 'search' })
       this.showSearchPopup = true
@@ -601,12 +771,12 @@ export default {
   }
 }
 .view-applicant {
-  @import "../../assets/styles/custom/tabs.less";
+  @import '../../assets/styles/custom/tabs.less';
   position: fixed;
   width: 100%;
   height: 100%;
   background-color: #fff;
-  @import "../../assets/styles/custom/button.less";
+  @import '../../assets/styles/custom/button.less';
   .my-search.van-popup {
     width: 100%;
     height: 100%;
@@ -778,12 +948,72 @@ export default {
     }
   }
   .reimburse-cell {
+    .cell-type-2 {
+      display: flex;
+      justify-content: space-between;
+      background: #eee;
+      border-radius: 10px;
+      margin: 8px 4px;
+      box-shadow: 2px 2px 5px #888;
+      .left {
+        width: 66.6%;
+        .item-2 {
+          display: flex;
+          justify-content: space-between;
+          .cell {
+            padding: 8px 16px;
+          }
+          .item-2-left {
+            width: 50%;
+            // text-align: center;
+          }
+          .item-2-right {
+            width: 50%;
+            text-align: center;
+            .cell {
+              padding-right: 0;
+            }
+          }
+        }
+      }
+      .right {
+        width: 33.3%;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        .status {
+          padding: 8px 16px;
+          display: flex;
+          justify-content: center;
+        }
+        .edit {
+          width: 60px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          margin: 0 8px;
+          padding: 4px 8px;
+          background-color: #333;
+          color: #fff;
+          border-radius: 20px;
+        }
+      }
+    }
     .cell-content {
       display: flex;
       justify-content: space-between;
     }
 
-    .cell-left,
+    .cell-left {
+      margin: 8px 0;
+      .item {
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 8px 16px;
+      }
+    }
     .cell-middle,
     .cell-right {
       margin: 8px 0;

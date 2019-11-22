@@ -15,9 +15,12 @@ const detail3 = resolve => require(['../views/detail/detail3'], resolve)
 const uploader = resolve => require(['../views/test/uploader'], resolve)
 
 const demo = resolve => require(['../views/test/demo'], resolve)
+const area = resolve => require(['../views/test/area'], resolve)
 
 const projectApply = resolve =>
   require(['../views/projectApply/projectApply'], resolve)
+const projectDetail = resolve =>
+  require(['../views/projectDetail/projectDetail'], resolve)
 const applicant = resolve => require(['../views/applicant/applicant'], resolve)
 const approver = resolve => require(['../views/approver/approver'], resolve)
 const search = resolve => require(['../views/search/search'], resolve)
@@ -37,6 +40,14 @@ export default [
     component: projectApply,
     meta: {
       title: '立项申请'
+    }
+  },
+  {
+    path: '/projectDetail',
+    name: 'projectDetail',
+    component: projectDetail,
+    meta: {
+      title: '查看立项申请'
     }
   },
   {
@@ -117,6 +128,14 @@ export default [
     component: demo,
     meta: {
       title: 'demo'
+    }
+  },
+  {
+    path: '/area',
+    name: 'area',
+    component: area,
+    meta: {
+      title: 'area'
     }
   },
   {

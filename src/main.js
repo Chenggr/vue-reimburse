@@ -7,9 +7,10 @@ import App from './App'
 import router from './router'
 import store from './store'
 import vConfig from './index'
-import watermark from 'vue-watermark-directive'
-
+// import watermark from 'vue-watermark-directive'
+import watermark from './common/directive/watermark'
 import VueAwesomeSwiper from 'vue-awesome-swiper'
+import '../node_modules/mint-ui/lib/style.min.css' // mint-ui
 import 'swiper/dist/css/swiper.css'
 import mandMobile from 'mand-mobile'
 import 'mand-mobile/lib/mand-mobile.css'
@@ -31,14 +32,9 @@ import * as customFilters from './common/filters/filters'
 
 import globalVar from './common/global_var.js'
 import cal from './common/calculation.js'
-// import VueLazyLoad from 'vue-lazyload'
 
-import plLazy from '@/components/pl-lazy/plLazy'
 import { DEBUG } from './config/config.js'
 
-// Vue.prototype.DEBUG = DEBUG
-// import vueFinger from 'vue-finger-directive'
-// Vue.use(vueFinger)
 Vue.use(VueAwesomeSwiper)
 Vue.use(mandMobile)
 
@@ -50,8 +46,6 @@ FastClick.attach(document.body)
 
 Vue.use(vConfig)
 Vue.use(VueRouter)
-
-Vue.component('pl-lazy', plLazy)
 
 const DEFAULT_CONFIG = {
   zIndex: 1000,
@@ -65,11 +59,7 @@ const DEFAULT_CONFIG = {
 }
 
 Vue.config.productionTip = false
-Vue.use(watermark, DEFAULT_CONFIG)
-// Vue.use(VueLazyLoad, {
-//   loading: require('@/assets/logo@2x.png'),
-//   error: require('@/assets/logo@2x.png')
-// })
+// Vue.use(watermark, DEFAULT_CONFIG)
 
 Object.keys(customFilters).forEach(key => {
   Vue.filter(key, customFilters[key])
@@ -80,6 +70,20 @@ Vue.directive('title', {
   inserted: function (el, binding) {
     document.title = binding.value
   }
+})
+
+Vue.directive('watermark', (el, binding) => {
+  let options
+
+  if (typeof binding.value === 'string') {
+    options = {
+      content: binding.value
+    }
+  } else {
+    options = binding.value
+  }
+
+  watermark(Object.assign({ container: el }, DEFAULT_CONFIG, options))
 })
 // document.addEventListener('deviceready', function () {
 /* eslint-disable no-new */

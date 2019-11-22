@@ -1,0 +1,230 @@
+{
+  "name": "yjxz",
+  "label": "请选择",
+  "options": [
+    {
+      "value": "clf",
+      "label": "差旅费",
+      "children": {
+        "name": "ejxz",
+        "label": "请选择",
+        "options": [
+          {
+            "value": "grjrclf",
+            "label": "个人金融差旅费",
+            "children": {
+              "name": "sjxz",
+              "label": "请选择",
+              "options": [
+                {
+                  "value": "grjrclf-gzf",
+                  "label": "个人金融业务营销差旅费-公杂费"
+                },
+                {
+                  "value": "grjrclf-zqb",
+                  "label": "个人金融业务营销差旅费-住勤补"
+                },
+                {
+                  "value": "grjrclf-zzf-2",
+                  "label": "个人金融业务营销差旅费-住宿费(2人以上)"
+                },
+                {
+                  "value": "grjrclf-zsf-1",
+                  "label": "个人金融业务营销差旅费-住宿费(单人出差)"
+                },
+                {
+                  "value": "grjrclf-jpjryfjf",
+                  "label": "个人金融业务营销差旅费-机票及燃油附加费"
+                },
+                {
+                  "value": "grjrclf-hcp",
+                  "label": "个人金融业务营销差旅费-火车票"
+                },
+                {
+                  "value": "grjrclf-gl",
+                  "label": "个人金融业务营销差旅费-公路"
+                },
+                {
+                  "value": "grjrclf-sl",
+                  "label": "个人金融业务营销差旅费-水路"
+                }
+              ]
+            }
+          },
+          {
+            "value": "gsjrclf",
+            "label": "公司金融差旅费",
+            "children": {
+              "name": "sjxz",
+              "label": "请选择",
+              "options": [
+                {
+                  "value": "gsjrclf-gzf",
+                  "label": "公司金融业务营销差旅费-公杂费"
+                },
+                {
+                  "value": "gsjrclf-zqb",
+                  "label": "公司金融业务营销差旅费-住勤补"
+                },
+                {
+                  "value": "gsjrclf-zsf-2",
+                  "label": "公司金融业务营销差旅费-住宿费(2人以上)"
+                },
+                {
+                  "value": "gsjrclf-zsf-1",
+                  "label": "公司金融业务营销差旅费-住宿费(单人出差)"
+                },
+                {
+                  "value": "gsjrclf-jpryfjf",
+                  "label": "公司金融业务营销差旅费-机票及燃油附加费"
+                },
+                {
+                  "value": "gsjrclf-mhjjhtf",
+                  "label": "公司金融业务营销差旅费-民航基金或退票费"
+                },
+                {
+                  "value": "gsjrclf-hcp",
+                  "label": "其他金融业务营销差旅费-火车票"
+                },
+                {
+                  "value": "gsjrclf-gl",
+                  "label": "其他金融业务营销差旅费-公路"
+                },
+                {
+                  "value": "gsjrclf-sl",
+                  "label": "其他金融业务营销差旅费-水路"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "value": "scfy",
+      "label": "市场费用",
+      "children": {
+        "name": "ejxz",
+        "label": "请选择",
+        "options": [
+          {
+            "value": "grjrxc",
+            "label": "个人金融业务宣传费",
+            "children": {
+              "name": "sjxz",
+              "label": "请选择",
+              "options": [
+                {
+                  "value": "grjrxcf",
+                  "label": "个人金融业务宣传费"
+                }
+              ]
+            }
+          },
+          {
+            "value": "gsjrywxc",
+            "label": "公司金融业务宣传费",
+            "children": {
+              "name": "sjxz",
+              "label": "请选择",
+              "options": [
+                {
+                  "value": "gsjrxcf",
+                  "label": "公司金融业务宣传费"
+                }
+              ]
+            }
+          },
+          {
+            "value": "qtywxc",
+            "label": "其他业务宣传费"
+          },
+          {
+            "value": "ej",
+            "label": "个人金融业务营销会议"
+          },
+          {
+            "value": "ej",
+            "label": "公司金融业务营销会议"
+          },
+          {
+            "value": "ej",
+            "label": "其他金融业务营销会议"
+          },
+          {
+            "value": "ej",
+            "label": "个人金融业务招待费"
+          },
+          {
+            "value": "ej",
+            "label": "公司金融业务招待费"
+          },
+          {
+            "value": "ej",
+            "label": "其他金融业务招待费"
+          },
+          {
+            "value": "ej",
+            "label": "金融市场业务宣传费"
+          },
+          {
+            "value": "ej",
+            "label": "金融市场业务广告费"
+          }
+        ]
+      }
+    },
+    {
+      "value": "fscfy",
+      "label": "非市场费用",
+      "children": {
+        "name": "ejxz",
+        "label": "请选择",
+        "options": [
+          {
+            "value": "ssf",
+            "label": "诉讼费",
+            "children": {
+              "name": "block",
+              "label": "请选择",
+              "options": [
+                {
+                  "value": "ssf",
+                  "label": "诉讼费"
+                }
+              ]
+            }
+          },
+          {
+            "value": "lsf",
+            "label": "律师费",
+            "children": {
+              "name": "block",
+              "label": "请选择",
+              "options": [
+                {
+                  "value": "lsf",
+                  "label": "律师费"
+                }
+              ]
+            }
+          },
+          {
+            "value": "grjrywxxzx",
+            "label": "个人金融业务信息咨询",
+            "children": {
+              "name": "block",
+              "label": "请选择",
+              "options": [
+                {
+                  "value": "grjrywxxzx",
+                  "label": "个人金融业务信息咨询"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

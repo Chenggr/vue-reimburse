@@ -1,6 +1,7 @@
 import vComponents from './components'
 import Axios from 'axios'
 import { Indicator, Toast } from 'mint-ui'
+// import { Indicator, Toast } from 'mand-mobile'
 
 // 配置 Axios 拦截器
 
@@ -21,6 +22,7 @@ Axios.interceptors.request.use(
 
 Axios.interceptors.response.use(
   res => {
+    console.log('Indicator2')
     Indicator.close()
     return res
   },
