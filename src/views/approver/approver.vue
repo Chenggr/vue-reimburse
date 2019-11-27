@@ -416,8 +416,13 @@ export default {
     onExpend (item) {
       console.log('onExpend')
       console.log(item)
-
-      this.showExpendPopup = true
+      console.log(item)
+      if (item.type === 2) {
+        // 显示支出单
+        this.showExpendPopup = true
+      } else {
+        this.$router.push({ name: 'projectDetail', params: item })
+      }
     },
     goback () {
       this.$router.push('/')

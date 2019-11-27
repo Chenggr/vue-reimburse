@@ -6,6 +6,121 @@ export function showToast (text) {
   })
 }
 
+export function uuid (len, radix) {
+  let chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.split(
+    ''
+  )
+  let uuid = []
+  let i
+  radix = radix || chars.length
+
+  if (len) {
+    // Compact form
+    for (i = 0; i < len; i++) uuid[i] = chars[0 | (Math.random() * radix)]
+  } else {
+    // rfc4122, version 4 form
+    var r
+
+    // rfc4122 requires these characters
+    uuid[8] = uuid[13] = uuid[18] = uuid[23] = '-'
+    uuid[14] = '4'
+
+    // Fill in random data.  At i==19 set the high bits of clock sequence as
+    // per rfc4122, sec. 4.1.5
+    for (i = 0; i < 36; i++) {
+      if (!uuid[i]) {
+        r = 0 | (Math.random() * 16)
+        uuid[i] = chars[i === 19 ? (r & 0x3) | 0x8 : r]
+      }
+    }
+  }
+
+  return uuid.join('')
+}
+
+// 获取base64图片大小，返回kb数字
+export function showSize (base64url) {
+  // 把头部去掉
+  var str
+  if (base64url.indexOf('data:image/png;base64,') != -1) {
+    str = base64url.replace('data:image/png;base64,', '')
+  } else if (base64url.indexOf('data:image/jpeg;base64,') != -1) {
+    str = base64url.replace('data:image/jpeg;base64,', '')
+  } else if (base64url.indexOf('data:image/jpg;base64,') != -1) {
+    str = base64url.replace('data:image/jpg;base64,', '')
+  }
+
+  // 找到等号，把等号也去掉
+  var equalIndex = str.indexOf('=')
+  if (str.indexOf('=') > 0) {
+    str = str.substring(0, equalIndex)
+  }
+  // 原来的字符流大小，单位为字节
+  var strLength = str.length
+  // 计算后得到的文件流大小，单位为字节
+  var fileLength = parseInt(strLength - (strLength / 8) * 2)
+  // 由字节转换为kb
+  var size = ''
+  size = (fileLength / 1024).toFixed(2)
+  var sizeStr = size + '' // 转成字符串
+  var index = sizeStr.indexOf('.') // 获取小数点处的索引
+  var dou = sizeStr.substr(index + 1, 2) // 获取小数点后两位的值
+  if (dou == '00') {
+    // 判断后两位是否为00，如果是则删除00
+    return sizeStr.substring(0, index) + sizeStr.substr(index + 3, 2)
+  }
+  return size
+}
+
+export function dealImage (base64, w, callback) {
+  var newImage = new Image()
+  var quality = 1 // 压缩系数0-1之间
+  newImage.src = base64
+  newImage.setAttribute('crossOrigin', 'Anonymous') // url为外域时需要
+  var imgWidth, imgHeight
+  newImage.onload = function () {
+    imgWidth = this.width
+    imgHeight = this.height
+    var canvas = document.createElement('canvas')
+    var ctx = canvas.getContext('2d')
+    if (Math.max(imgWidth, imgHeight) > w) {
+      if (imgWidth > imgHeight) {
+        canvas.width = w
+        canvas.height = (w * imgHeight) / imgWidth
+      } else {
+        canvas.height = w
+        canvas.width = (w * imgWidth) / imgHeight
+      }
+    } else {
+      canvas.width = imgWidth
+      canvas.height = imgHeight
+      quality = 0.6
+    }
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    ctx.drawImage(this, 0, 0, canvas.width, canvas.height)
+    var base64 = canvas.toDataURL('image/jpeg', quality) // 压缩语句
+    // 如想确保图片压缩到自己想要的尺寸,如要求在50-150kb之间，请加以下语句，quality初始值根据情况自定
+    // while (base64.length / 1024 > 150) {
+    // 	quality -= 0.01;
+    // 	base64 = canvas.toDataURL("image/jpeg", quality);
+    // }
+    // 防止最后一次压缩低于最低尺寸，只要quality递减合理，无需考虑
+    // while (base64.length / 1024 < 50) {
+    // 	quality += 0.001;
+    // 	base64 = canvas.toDataURL("image/jpeg", quality);
+    // }
+    callback(base64) // 必须通过回调函数返回，否则无法及时拿到该值
+  }
+}
+
+export function currentTime () {
+  let myDate = new Date()
+  console.log(myDate.getHours())
+  console.log(myDate.getMinutes())
+  console.log(myDate.getSeconds())
+  console.log(myDate.toLocaleTimeString())
+  return myDate.toLocaleTimeString()
+}
 // parseQuery (url) {
 //   if(url){
 //   let params = {}

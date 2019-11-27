@@ -16,6 +16,7 @@ const uploader = resolve => require(['../views/test/uploader'], resolve)
 
 const demo = resolve => require(['../views/test/demo'], resolve)
 const area = resolve => require(['../views/test/area'], resolve)
+const typePicker = resolve => require(['../views/test/typePicker'], resolve)
 
 const projectApply = resolve =>
   require(['../views/projectApply/projectApply'], resolve)
@@ -24,6 +25,9 @@ const projectDetail = resolve =>
 const applicant = resolve => require(['../views/applicant/applicant'], resolve)
 const approver = resolve => require(['../views/approver/approver'], resolve)
 const search = resolve => require(['../views/search/search'], resolve)
+
+const expendApply = resolve =>
+  require(['../views/expendApply/expendApply'], resolve)
 
 export default [
   {
@@ -40,6 +44,14 @@ export default [
     component: projectApply,
     meta: {
       title: '立项申请'
+    }
+  },
+  {
+    path: '/expendApply',
+    name: 'expendApply',
+    component: expendApply,
+    meta: {
+      title: '支出申请'
     }
   },
   {
@@ -128,6 +140,14 @@ export default [
     component: demo,
     meta: {
       title: 'demo'
+    }
+  },
+  {
+    path: '/typePicker',
+    name: 'typePicker',
+    component: typePicker,
+    meta: {
+      title: 'typePicker'
     }
   },
   {

@@ -35,6 +35,14 @@ export default {
   color: #2c3e50;
   margin-top: 60px;
 } */
+
+.mint-indicator-wrapper {
+  z-index: 2147483647;
+}
+.mint-toast {
+  z-index: 2147483647 !important;
+}
+
 #header-one-card {
   z-index: 499 !important;
   .right-color {

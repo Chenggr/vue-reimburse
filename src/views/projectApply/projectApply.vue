@@ -1,8 +1,21 @@
 <template>
   <div class="view-project-apply">
-    <md-tab-picker title="请选择"
+    <!-- <md-tab-picker ref="tabPicker"
+                   :mask-closable="false"
+                   title="请选择"
                    describe=""
                    large-radius
+                   @select="select"
+                   @show="showTabPicker"
+                   :data="data"
+                   v-model="show"
+                   @change="handleChange" /> -->
+    <my-tab-picker ref="tabPicker"
+                   :mask-closable="true"
+                   title="请选择"
+                   describe=""
+                   large-radius
+                   @select="select"
                    :data="data"
                    v-model="show"
                    @change="handleChange" />
@@ -12,24 +25,28 @@
                      arrow
                      :addon="startDate"
                      @click="onStartDate" />
+      <!-- <md-input-item title="立项总金额"
+                     v-model="startTotalMoney"
+                     align="right"
+                     placeholder="请输入"></md-input-item> -->
       <md-field-item solid
                      title="费用类型"
                      arrow
                      :addon="chargeTypeText"
                      @click="onChargeType" />
-      <md-field-item title="费用类型"
+      <!-- <md-field-item title="费用类型"
                      arrow="arrow-right"
                      @click="show = !show"
                      placeholder=""
                      :content="addressStr"
-                     solid />
-      <md-field-item solid
-                     title="指派审批人"
-                     arrow
-                     :addon="toApprover"
-                     @click="onShowApprover" />
-      <div v-if="this.chargeType == chargeTypeEnum.TRIP">
+                     solid /> -->
 
+      <div v-if="this.chargeType == chargeTypeEnum.TRIP">
+        <md-field-item solid
+                       title="指派审批人"
+                       arrow
+                       :addon="toApprover"
+                       @click="onShowApprover" />
         <md-input-item class="lead-input"
                        title="领队人"
                        v-model="leader"
@@ -150,7 +167,7 @@
                     image-fit="fill"
                     :after-read="afterRead" /> -->
     </div>
-    <div @click="_getInfo">test</div>
+    <!-- <div @click="_getInfo">test</div> -->
     <div class="btn-wrap">
       <van-button type="default"
                   ref="submits"
@@ -273,13 +290,13 @@
                 <div class="popup-content popup-trip"
                      v-for="(atta,i) of item.attaList"
                      :key="i">
-                  <div>添加附件</div>
+                  <div class="add-atta">添加附件</div>
                   <div class="uploader-wrap"
-                       @click="currentIndex(index)">
+                       @click="currentIndex(index,i)">
 
-                    <van-uploader :max-count="1"
+                    <van-uploader :max-size="maxSize"
+                                  :max-count="1"
                                   @delete="deleteTrip(index,i)"
-                                  :before-read="beforeAttaListTrip(index)"
                                   :after-read="afterRead"
                                   v-model="atta.attachfileList"
                                   image-fit="fill">
@@ -288,18 +305,48 @@
                   </div>
                   <div v-if="atta.attachInfo"
                        style="margin-top:10px;">
-                    <van-field class="attach-textarea"
+
+                    <!-- <van-field class="attach-textarea"
                                v-model="atta.attachInfo"
                                rows="3"
                                label=""
                                type="textarea"
-                               placeholder="" />
+                               placeholder="" /> -->
                   </div>
-                  <div v-if="atta.attachTitle"
-                       style="margin-top:10px;">
-                    <md-input-item title="附件标题"
-                                   v-model="atta.attachTitle"
-                                   align="right"></md-input-item>
+                  <div class="ticket-info"
+                       v-for="(info,idx) of atta.attachInfo"
+                       :key="idx">
+                    <div v-if="info.type=='10200'">
+                      <md-input-item class="ticket-title"
+                                     style="margin-top:10px;"
+                                     :title="info.type_msg"
+                                     disabled
+                                     align="right"></md-input-item>
+                      <md-input-item title="票号"
+                                     v-model="info.invoice_no"
+                                     align="right"></md-input-item>
+                      <md-input-item title="乘车日期"
+                                     v-model="info.date_time"
+                                     align="right"></md-input-item>
+                      <md-input-item title="车票金额"
+                                     v-model="info.amount_little"
+                                     align="right"></md-input-item>
+                    </div>
+                    <div v-if="info.type=='10202'">
+                      <md-input-item class="ticket-title"
+                                     style="margin-top:10px;"
+                                     :title="info.type_msg"
+                                     disabled
+                                     align="right"></md-input-item>
+                      <md-input-item title="票价"
+                                     v-model="info.fare"
+                                     align="right"></md-input-item>
+                      <md-input-item v-if="info.type=='10202' && info.fuel_surcharge != 'null'"
+                                     title="燃油附加费"
+                                     v-model="info.fuel_surcharge"
+                                     align="right"></md-input-item>
+                    </div>
+
                   </div>
 
                 </div>
@@ -371,13 +418,18 @@
 </template> 
 
 <script>
-import data from '../../assets/data/type'
-
+import axios from 'axios'
+import data from '../../../static/data/init.json'
+import { currentTime, dealImage, showSize, uuid } from '../../common/Utils'
+import { testList } from '../../../static/data/list'
 import { myHttp, PROD_URL } from 'config/http'
 import Calendar from 'vue-calendar-component'
 import { chargeTypeEnum } from '../../config/enum'
 import AreaList from '../../common/area'
 import { dateFormat, get3MonthBefor } from 'common/filterDate'
+import MyTabPicker from '../../customComponents/tab-picker'
+import { resolveResult } from '../../common/bussiness'
+
 import {
   DatetimePicker,
   ActionSheet,
@@ -400,6 +452,7 @@ import {
 export default {
   name: 'ProjectApply',
   components: {
+    MyTabPicker,
     Calendar,
     VanDatetimePicker: DatetimePicker,
     VanActionSheet: ActionSheet,
@@ -427,6 +480,7 @@ export default {
       this.partnerText = this.leader  // 初始同行人为默认领队
       this.partnerList = [{ value: this.leader }]
     }
+    // 获取指派人
   },
   computed: {
     transportation () {
@@ -444,6 +498,10 @@ export default {
   },
   data () {
     return {
+      startTotalMoney: '',   // 立项总金额
+      up_no: 1, // 上传编号
+      compressImg: '', // 压缩后的base64
+      maxSize: 1048576 * 2,  // 1M 1048576
       toApprover: '', // 指派审批人
       showApprover: false,    // 显示指派审批人
       toApproverList: ['A审批人', 'B审批人', 'C审批人'],
@@ -464,7 +522,7 @@ export default {
           attaList: [{
             attachfileList: [],
             attachTitle: '',
-            attachInfo: ''
+            attachInfo: []
           }],
           partnerName: ''
         }
@@ -506,6 +564,7 @@ export default {
       chargeTypeText: '',                   // 费用类型文字
       chargeType: 0,                        // 费用类型 1 2
       showChargeType: false,
+      chargeTypeValue: '',
       chargeTypeList: ['差旅费', '市场费用', '非市场费用'],
       isabled: true,                        // 提交按钮是否可用
       leader: '领队TEST',                           // 领队人
@@ -541,18 +600,97 @@ export default {
   },
 
   methods: {
+    _getToApprover () {
+      if (this.chargeTypeValue === '') {
+        Toast('请选择费用类型')
+        return
+      }
+      if (this.chargeType === 2) {
+        if (this.expendTotalMoney === '') {
+          Toast('请输入支出总金额')
+          return
+        }
+      }
+      myHttp(PROD_URL + '/',
+        {
+          functionId: 'Q0001',
+          body: {
+            fyTranType: this.chargeTypeValue,
+            Sp_atm: this.expendTotalMoney || 0, // 支出总金额
+            LX_TYPE: 'LX_FY',   // 费用立项 "LX_FY" 支出立项 LX_ZC(必填)
+            SpXno: '0',
+            channelTranCode: 'Q0001'
+          }
+        }).then(res => {
+          console.log(res)
+          if (res.msgcode === '00') {
+            console.log(JSON.parse(res.body))
+          } else {
+            Toast.info(res.rtnmsg)
+          }
+        })
+    },
+    showTabPicker () {
+
+    },
+    select (data) {
+      console.log('data')
+      console.log(data)
+      console.log('this.data')
+      console.log(this.data)
+
+      if (data.index === 0) {
+        myHttp(PROD_URL + '/',
+          {
+            functionId: 'Q0009',
+            body: { Qry_type: data.value }
+          }).then(res => {
+            console.log(res)
+            if (res.msgcode === '00') {
+
+            } else {
+              Toast.info(res.rtnmsg)
+            }
+          })
+
+        // axios.get('static/data/ej.json').then(res => {
+        //   if (data.option.selected) {
+        //     data.option.selected.children = res.data
+        //   }
+        // })
+      } else if (data.index === 1) {
+        axios.get('static/data/sj.json').then(res => {
+          if (data.option.selected) {
+            data.option.selected.children = res.data
+          }
+        })
+      }
+      if (data.index === 2) {
+        this.show = false
+      }
+    },
+
     handleChange ({ options }) {
       console.log(options)
+      if (options.length === 3) {
+        if (options[0].label === '差旅费') {
+          console.log(this.chargeType)
+          this.chargeType = chargeTypeEnum.TRIP
+        } else if (options[0].label === '市场费用' || options[0].label === '非市场费用') {
+          this.chargeType = chargeTypeEnum.SERVE
+        }
+      }
+
       this.address = options
     },
     _getInfo () {
       myHttp(PROD_URL + '/',
         {
-          functionId: 'F0001',
-          body: { a: '1' }
+          functionId: 'Q0009',
+          body: { Qry_type: 'FY_CLF' }
         }).then(res => {
           console.log(res)
-          if (res.rtnCode === '0000') {
+          if (res.rtnCode === '00') {
 
           } else {
             Toast.info(res.rtnMsg)
@@ -561,6 +699,7 @@ export default {
     },
     // 显示指派审批人弹框
     onShowApprover () {
+      this._getToApprover()
       this.showApprover = true
     },
     onChangePayTax (value, index) {
@@ -671,7 +810,7 @@ export default {
             attaList: [{
               attachfileList: [],
               attachTitle: '',
-              attachInfo: ''
+              attachInfo: []
             }],
             partnerName: this.leader
           }
@@ -700,30 +839,114 @@ export default {
       console.log(this.swiperTripList)
     },
     // 差旅上传附件索引存储
-    currentIndex (i) {
+    currentIndex (index, i) {
       console.log('currentIndex')
-      console.log(i)
-      this.attaTripIndex = i
+      console.log(index)
+      this.attaTripIndex = index
+      this.i = i
     },
 
-    beforeAttaListTrip () {
-
+    beforeAttaListTrip (file, detail) {
+      console.log(file)
+      console.log(detail)
     },
+    printing (base64) {
+      console.log('压缩后', base64.length / 1024)
+      let base64size = showSize(base64)  // 压缩后base64的大小，单位kb
+      if (base64size > 2048) {      // 发送给后端的base64图片大小需要小于2M
+        Toast('上传的图片过大')
+        return
+      }
+      console.log(base64size)
+      this.compressImg = base64
+      console.log('this.compressImg')
+      console.log(this.compressImg)
+      if (this.compressImg) {
+        console.log('发送识别图片请求')
+        myHttp(PROD_URL + '/',
+          {
+            functionId: 'U0001',
+            body: {
+              channelTranCode: 'U0001',
+              LX_TYPE: 'LX_FY',
+              fyTranType: this.chargeTypeValue,
+              Imge_id: uuid(32, 16),
+              X_NO: this.up_no,
+              Image: this.compressImg
+            }
+          }).then(res => {
+            console.log(res)
+            if (res.msgcode === '00') {
+              let body = JSON.parse(res.body)
+              let JsonStr = JSON.parse(body.JsonStr)
+              console.log(JsonStr)
+              this.up_no++
+            } else {
+              Toast.info(res.rtnMsg)
+            }
+          })
+      }
+    },
+
     afterRead (file, detail) {
       // 此时可以自行将文件上传至服务器
       console.log(file)
       console.log(detail)
       console.log('this.attaTripIndex')
       console.log(this.attaTripIndex)
+
       if (file) {
         this.swiperTripList[this.attaTripIndex].attaList.push({
           attachfileList: [],
           attachTitle: '',
-          attachInfo: ''
+          attachInfo: []
         })
       }
-      // TODO 反显图片附件信息
       console.log(this.swiperTripList)
+      if (file.size > 1048576) {
+        dealImage(file.content, 800, this.printing)
+      } else {
+        console.log(testList.body)
+        let body = JSON.parse(testList.body)
+        console.log(body)
+        let JsonStr = JSON.parse(body.JsonStr)
+        console.log(JsonStr)
+        this.up_no++
+        let result = resolveResult(JsonStr)
+        console.log(result)
+        result.forEach((item, index) => {
+          this.swiperTripList[this.attaTripIndex].attaList[this.i].attachInfo.push(result[index])
+        })
+        console.log(this.swiperTripList)
+        // myHttp(PROD_URL + '/',
+        //   {
+        //     functionId: 'U0001',
+        //     body: {
+        //       channelTranCode: 'U0001',
+        //       LX_TYPE: 'LX_FY',
+        //       fyTranType: this.chargeTypeValue,
+        //       Imge_id: uuid(32, 16),
+        //       X_NO: this.up_no,
+        //       Image: file.content
+        //     }
+        //   }).then(res => {
+        //     console.log(res)
+        //     if (res.msgcode === '00') {
+        //       let body = JSON.parse(res.body)
+        //       let JsonStr = JSON.parse(body.JsonStr)
+        //       console.log(JsonStr)
+        //       this.up_no++
+        //       let result = resolveResult(JsonStr)
+        //       console.log(result)
+        //       result.forEach((item, index) => {
+        //         this.swiperTripList[this.attaTripIndex].attaList.attachInfo = result[index]
+        //       })
+        //     } else {
+        //       Toast.info(res.rtnMsg)
+        //     }
+        //   })
+      }
+      // 发送请求 反显图片附件信息
     },
     onAttachment () {
 
@@ -779,7 +1002,7 @@ export default {
           attaList: [{
             attachfileList: [],
             attachTitle: '',
-            attachInfo: ''
+            attachInfo: []
           }],
           partnerName: this.leader
         }
@@ -790,7 +1013,7 @@ export default {
           attaList: [{
             attachfileList: [],
             attachTitle: '',
-            attachInfo: ''
+            attachInfo: []
           }]
           // partnerName: this.leader
         })
@@ -850,8 +1073,13 @@ export default {
 
       if (this.chargeTypeText === '差旅费') {
         this.chargeType = chargeTypeEnum.TRIP
-      } else if (this.chargeTypeText === '市场费用' || this.chargeTypeText === '非市场费用') {
+        this.chargeTypeValue = 'FY_CLF'
+      } else if (this.chargeTypeText === '市场费用') {
         this.chargeType = chargeTypeEnum.SERVE
+        this.chargeTypeValue = 'FY_SC'
+      } else if (this.chargeTypeText === '非市场费用') {
+        this.chargeType = chargeTypeEnum.SERVE
+        this.chargeTypeValue = 'FY_FSC'
       }
       this.showChargeType = false
       console.log(this.chargeType)
@@ -886,79 +1114,89 @@ export default {
     submit () {
       console.log('提交')
       // this._getInfo()
+      console.log(this.partnerList)
+      if (this.validate()) {
+        myHttp(PROD_URL + '/',
+          {
+            functionId: 'F0001',
+            body: {
+              SpXno: '1',
+              channelDate: this.startDate.replace(/-/g, ''), // 发起方日期
+              channelTime: currentTime(),                               // 发起方时间
+              fyTranType: this.chargeTypeValue,         //  费用类型
+              TAB_LEAN_EHR: this.leader,                     // 领队人
+              TAB_GROUP_EHR: this.partnerList,               // 同行人
+              TAB_GROUP_NUM: this.partnerList.length,                             // 同行人人数
+              TAB_STR_DATE: this.chooseOne,                  // 出差开始日期
+              TAB_END_DATE: this.chooseTwo,                  // 出差结束日期
+              TAB_DAY_NUM: '',                               // 出差天数;
+              TAB_CZ_ADDRESS: this.businessTripAddress,      // 出差地点;
+              TAB_CZ_TYPE: '',                               // 出差任务类型 公务：GW 营销 YX 会议 HY 培训 PX 实习SX 其它 QT
+              TAB_CZ_FILE: '',                               // 出差通知或文件名称;
+              TAB_CZ_FILENO: '',                             // 出差通知或文件文号;
+              TAB_TO_JTGJ: this.goTrans,                     // 出差去程交通;
+              TAB_BCK_JTGJ: this.backTrans,                  // 出差返程交通;
+              NOTES: this.remarkInfoContent,                 // 备注;
+              TAB_EHR_TELL: ''                               // 经办人电话;
+            }
+          }).then(res => {
+            console.log(res)
+            if (res.rtnCode === '0000') {
 
-      this.validate()
-      myHttp(PROD_URL + '/',
-        {
-          functionId: 'F0001',
-          body: {
-            channelDate: this.startDate.replace(/-/g, ''), // 发起方日期
-            channelTime: '',                               // 发起方时间
-
-            TAB_LEAN_EHR: this.leader,                     // 领队人
-            TAB_GROUP_EHR: this.partnerList,               // 同行人
-            TAB_GROUP_NUM: '',                             // 同行人人数
-            TAB_STR_DATE: this.chooseOne,                  // 出差开始日期
-            TAB_END_DATE: this.chooseTwo,                  // 出差结束日期
-            TAB_DAY_NUM: '',                               // 出差天数;
-            TAB_CZ_ADDRESS: this.businessTripAddress,      // 出差地点;
-            TAB_CZ_TYPE: '',                               // 出差任务类型 公务：GW 营销 YX 会议 HY 培训 PX 实习SX 其它 QT
-            TAB_CZ_FILE: '',                               // 出差通知或文件名称;
-            TAB_CZ_FILENO: '',                             // 出差通知或文件文号;
-            TAB_TO_JTGJ: this.goTrans,                     // 出差去程交通;
-            TAB_BCK_JTGJ: this.backTrans,                  // 出差返程交通;
-            NOTES: this.remarkInfoContent,                 // 备注;
-            TAB_EHR_TELL: ''                               // 经办人电话;
-          }
-        }).then(res => {
-          console.log(res)
-          if (res.rtnCode === '0000') {
-
-          } else {
-            Toast.info(res.rtnMsg)
-          }
-        })
+            } else {
+              Toast.info(res.rtnMsg)
+            }
+          })
+      }
     },
     validate () {
       console.log(this.businessTripAddress)
       if (this.startDate === '') {
         Toast('请选择立项日期')
-        return
+        return false
       } else if (this.chargeType === 0) {
         Toast('请选择费用类型')
-        return
+        return false
       } else if (this.toApprover === '') {
         Toast('请选择指派审批人')
-        return
+        return false
       }
       if (this.chargeType === 1) {
         if (this.chooseOne === '' && this.chooseTwo === '') {
           Toast('请选择出差时间')
+          return false
         } else if (this.chooseOne === '') {
           Toast('请选择开始出差时间')
+          return false
         } else if (this.chooseTwo === '') {
           Toast('请选择结束出差时间')
+          return false
         } else if (this.businessTripAddress === '') {
           Toast('请选择出差地点')
+          return false
         } else if (this.goTrans === '' && this.backTrans === '') {
           Toast('请选择交通工具')
+          return false
         } else if (this.goTrans === '') {
           Toast('请选择去程交通工具')
+          return false
         } else if (this.backTrans === '') {
           Toast('请选择返程交通工具')
+          return false
         }
       }
+      return true
     }
   }
 }
 </script>
 <style lang="less">
 .view-project-apply {
-  @import '../../assets/styles/custom/input.less';
-  @import '../../assets/styles/custom/button.less';
-  @import '../../assets/styles/custom/collapse.less';
-  @import '../../assets/styles/custom/textarea.less';
-  @import '../../assets/styles/custom/calendar.less';
+  @import "../../assets/styles/custom/input.less";
+  @import "../../assets/styles/custom/button.less";
+  @import "../../assets/styles/custom/collapse.less";
+  @import "../../assets/styles/custom/textarea.less";
+  @import "../../assets/styles/custom/calendar.less";
 
   // md-popup md-tab-picker
 
@@ -995,6 +1233,22 @@ export default {
     }
   }
   .my-swiper {
+    .ticket-info {
+      .md-field-item-title {
+        font-size: 12px !important;
+        color: #666;
+      }
+      .ticket-title {
+        .md-field-item-title {
+          color: #111a34;
+          font-size: 14px !important;
+        }
+      }
+    }
+    .add-atta {
+      color: #111a34;
+      font-size: 14px !important;
+    }
     .popup-content.popup-trip,
     .popup-content.popup-serve {
       .md-field-item-content {
@@ -1095,6 +1349,7 @@ export default {
           .md-field-item-control {
             input {
               font-size: 14px;
+              color: #666;
             }
           }
         }
@@ -1248,7 +1503,7 @@ export default {
       margin: 8px 16px;
       width: 280px;
       height: 110px;
-      background-image: url('../../assets/img/timg.jpg');
+      background-image: url("../../assets/img/timg.jpg");
       background-size: cover;
       background-repeat: no-repeat;
       .mark-bg {

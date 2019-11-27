@@ -1,0 +1,16 @@
+{
+  "name": "ejxz",
+  "label": "请选择",
+  "options": [
+    {
+      "value": "grjrclf",
+      "label": "个人金融差旅费",
+      "children": {}
+    },
+    {
+      "value": "gsjrclf",
+      "label": "公司金融差旅费",
+      "children": {}
+    }
+  ]
+}

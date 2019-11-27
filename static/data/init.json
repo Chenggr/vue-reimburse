@@ -1,0 +1,21 @@
+{
+  "name": "yjxz",
+  "label": "请选择",
+  "options": [
+    {
+      "value": "clf",
+      "label": "差旅费",
+      "children": {}
+    },
+    {
+      "value": "scfy",
+      "label": "市场费用",
+      "children": {}
+    },
+    {
+      "value": "fscfy",
+      "label": "非市场费用",
+      "children": {}
+    }
+  ]
+}

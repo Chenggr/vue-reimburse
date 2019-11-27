@@ -1,0 +1,38 @@
+{
+  "name": "sjxz",
+  "label": "请选择",
+  "options": [
+    {
+      "value": "grjrclf-gzf",
+      "label": "个人金融业务营销差旅费-公杂费"
+    },
+    {
+      "value": "grjrclf-zqb",
+      "label": "个人金融业务营销差旅费-住勤补"
+    },
+    {
+      "value": "grjrclf-zzf-2",
+      "label": "个人金融业务营销差旅费-住宿费(2人以上)"
+    },
+    {
+      "value": "grjrclf-zsf-1",
+      "label": "个人金融业务营销差旅费-住宿费(单人出差)"
+    },
+    {
+      "value": "grjrclf-jpjryfjf",
+      "label": "个人金融业务营销差旅费-机票及燃油附加费"
+    },
+    {
+      "value": "grjrclf-hcp",
+      "label": "个人金融业务营销差旅费-火车票"
+    },
+    {
+      "value": "grjrclf-gl",
+      "label": "个人金融业务营销差旅费-公路"
+    },
+    {
+      "value": "grjrclf-sl",
+      "label": "个人金融业务营销差旅费-水路"
+    }
+  ]
+}

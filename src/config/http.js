@@ -11,7 +11,7 @@ export const PROD_URL = DEBUG
 // : 'https://cloud.bankofchina.com/hb/TEST/BOCHB_LDVC_SERVER/Bochb_Ldvc_Service' // 测试
 
 export function myHttp (url, dataObject) {
-  axios.defaults.timeout = 10000
+  axios.defaults.timeout = 50000
   axios.defaults.headers.post['Content-Type'] = 'application/json;charset=UTF-8'
   axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*'
   axios.defaults.headers.post['Access-Control-Allow-Metclshods'] = 'POST'
@@ -24,11 +24,16 @@ export function myHttp (url, dataObject) {
   //   ? 'MjAxOTA4MzAxNDM2MDBISkRIQkpD'
   //   : window.sessionStorage.getItem('base64Str')
   // 公共请求
+
   let publicHeaderData = {
     // base64Str:base64Str
     appServiceKey: '123456'
   }
-  let publicBody = { herId: '1' } // body的公共请求
+  let publicBody = {
+    ehrOrgNo: '11780',
+    ehrId: '6111603',
+    ehrOrgName: ''
+  } // body的公共请求
   Object.assign(dataObject.body, publicBody)
   if (dataObject) {
     Object.assign(publicHeaderData, dataObject)

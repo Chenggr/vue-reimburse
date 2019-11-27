@@ -797,7 +797,7 @@ export default {
   }
   .my-popup.van-popup {
     width: 76%;
-    height: 70%;
+    height: 78%;
     padding: 8px 16px;
 
     .popup-wrap {
