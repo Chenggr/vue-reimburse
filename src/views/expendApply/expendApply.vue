@@ -440,9 +440,9 @@ export default {
 </script>
 <style lang="less">
 .view-expend-apply {
-  @import '../../assets/styles/custom/input.less';
-  @import '../../assets/styles/custom/button.less';
-  @import '../../assets/styles/custom/collapse.less';
+  @import "../../assets/styles/custom/input.less";
+  @import "../../assets/styles/custom/button.less";
+  @import "../../assets/styles/custom/collapse.less";
 
   .my-popup.van-popup {
     width: 76%;
@@ -450,6 +450,13 @@ export default {
     padding: 8px 16px;
 
     .popup-wrap {
+      .swiper-pagination {
+        position: inherit;
+      }
+      .swiper-pagination-bullet {
+        margin: 0 8px;
+      }
+
       .popup-title {
         display: flex;
         align-items: center;
@@ -464,7 +471,7 @@ export default {
         }
       }
       .popup-content {
-        padding: 8px;
+        // padding: 8px;
         .leader {
           font-size: 14px;
           display: flex;
